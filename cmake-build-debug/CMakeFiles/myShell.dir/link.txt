@@ -1,0 +1,1 @@
+/usr/bin/cc  -g   CMakeFiles/myShell.dir/myshell.c.o CMakeFiles/myShell.dir/utility.c.o  -o myShell 
