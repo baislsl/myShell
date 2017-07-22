@@ -84,13 +84,25 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/baislsl/c_c++/myShell/cd.h">
+			<Option target="myShell"/>
+		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/internal.h">
+			<Option target="myShell"/>
+		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/myshell.c">
 			<Option target="myShell"/>
 		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/myshell.h">
 			<Option target="myShell"/>
 		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/pwd.h">
+			<Option target="myShell"/>
+		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/utility.c">
+			<Option target="myShell"/>
+		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/utility.h">
 			<Option target="myShell"/>
 		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/CMakeLists.txt">

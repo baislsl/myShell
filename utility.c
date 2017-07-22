@@ -2,17 +2,12 @@
 // Created by baislsl on 17-7-21.
 //
 
-#include <glob.h>
-#include <stdbool.h>
-#include <memory.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <zconf.h>
-#include "myshell.h"
+#include "utility.h"
 
-void err_sys(char *msg){
-    write(STDERR_FILENO, msg, strlen(msg));
+void err_sys(char *msg, int outFd){
+    write(outFd, msg, strlen(msg));
 }
+
 
 int findCharacter(char *str, size_t strLength, size_t from[], size_t to[], size_t indexSize, Func *func) {
     bool singleQuote = false, doubleQuote = false;
@@ -72,7 +67,8 @@ ssize_t spaceSplit(char *str, size_t strLength, char *store[], size_t storeSize)
 
 
 void utilTest() {
-    char *a = "while return     gg, \" sh\" ,kk";
+    // char *a = "while return     gg, \" sh\" ,kk";
+    char *a = "pwd";
     char *store[10];
     for (int i = 0; i < 10; i++) {
         store[i] = (char *) malloc(10);
