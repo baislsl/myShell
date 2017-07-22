@@ -1,0 +1,10 @@
+总用量 92
+drwxrwxr-x 3 baislsl baislsl  4096 7月  21 22:57 .
+drwxrwxr-x 5 baislsl baislsl  4096 7月  21 22:57 ..
+-rw-rw-r-- 1 baislsl baislsl 32854 7月  21 10:28 CMakeCache.txt
+drwxrwxr-x 5 baislsl baislsl  4096 7月  21 22:57 CMakeFiles
+-rw-rw-r-- 1 baislsl baislsl  1388 7月  21 10:28 cmake_install.cmake
+-rw-rw-r-- 1 baislsl baislsl  5608 7月  21 10:40 Makefile
+-rwxrwxr-x 1 baislsl baislsl 19160 7月  21 22:57 myShell
+-rw-rw-r-- 1 baislsl baislsl  5575 7月  21 10:40 myShell.cbp
+-rwx-w--w- 1 baislsl baislsl   547 7月  21 22:56 tmp
