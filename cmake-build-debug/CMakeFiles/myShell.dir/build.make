@@ -105,19 +105,97 @@ CMakeFiles/myShell.dir/utility.c.o.provides: CMakeFiles/myShell.dir/utility.c.o.
 CMakeFiles/myShell.dir/utility.c.o.provides.build: CMakeFiles/myShell.dir/utility.c.o
 
 
+CMakeFiles/myShell.dir/command.c.o: CMakeFiles/myShell.dir/flags.make
+CMakeFiles/myShell.dir/command.c.o: ../command.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/myShell.dir/command.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/myShell.dir/command.c.o   -c /home/baislsl/c_c++/myShell/command.c
+
+CMakeFiles/myShell.dir/command.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/myShell.dir/command.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/baislsl/c_c++/myShell/command.c > CMakeFiles/myShell.dir/command.c.i
+
+CMakeFiles/myShell.dir/command.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/myShell.dir/command.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/baislsl/c_c++/myShell/command.c -o CMakeFiles/myShell.dir/command.c.s
+
+CMakeFiles/myShell.dir/command.c.o.requires:
+
+.PHONY : CMakeFiles/myShell.dir/command.c.o.requires
+
+CMakeFiles/myShell.dir/command.c.o.provides: CMakeFiles/myShell.dir/command.c.o.requires
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/command.c.o.provides.build
+.PHONY : CMakeFiles/myShell.dir/command.c.o.provides
+
+CMakeFiles/myShell.dir/command.c.o.provides.build: CMakeFiles/myShell.dir/command.c.o
+
+
+CMakeFiles/myShell.dir/internal.c.o: CMakeFiles/myShell.dir/flags.make
+CMakeFiles/myShell.dir/internal.c.o: ../internal.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/myShell.dir/internal.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/myShell.dir/internal.c.o   -c /home/baislsl/c_c++/myShell/internal.c
+
+CMakeFiles/myShell.dir/internal.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/myShell.dir/internal.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/baislsl/c_c++/myShell/internal.c > CMakeFiles/myShell.dir/internal.c.i
+
+CMakeFiles/myShell.dir/internal.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/myShell.dir/internal.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/baislsl/c_c++/myShell/internal.c -o CMakeFiles/myShell.dir/internal.c.s
+
+CMakeFiles/myShell.dir/internal.c.o.requires:
+
+.PHONY : CMakeFiles/myShell.dir/internal.c.o.requires
+
+CMakeFiles/myShell.dir/internal.c.o.provides: CMakeFiles/myShell.dir/internal.c.o.requires
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/internal.c.o.provides.build
+.PHONY : CMakeFiles/myShell.dir/internal.c.o.provides
+
+CMakeFiles/myShell.dir/internal.c.o.provides.build: CMakeFiles/myShell.dir/internal.c.o
+
+
+CMakeFiles/myShell.dir/parser.c.o: CMakeFiles/myShell.dir/flags.make
+CMakeFiles/myShell.dir/parser.c.o: ../parser.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/myShell.dir/parser.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/myShell.dir/parser.c.o   -c /home/baislsl/c_c++/myShell/parser.c
+
+CMakeFiles/myShell.dir/parser.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/myShell.dir/parser.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/baislsl/c_c++/myShell/parser.c > CMakeFiles/myShell.dir/parser.c.i
+
+CMakeFiles/myShell.dir/parser.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/myShell.dir/parser.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/baislsl/c_c++/myShell/parser.c -o CMakeFiles/myShell.dir/parser.c.s
+
+CMakeFiles/myShell.dir/parser.c.o.requires:
+
+.PHONY : CMakeFiles/myShell.dir/parser.c.o.requires
+
+CMakeFiles/myShell.dir/parser.c.o.provides: CMakeFiles/myShell.dir/parser.c.o.requires
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/parser.c.o.provides.build
+.PHONY : CMakeFiles/myShell.dir/parser.c.o.provides
+
+CMakeFiles/myShell.dir/parser.c.o.provides.build: CMakeFiles/myShell.dir/parser.c.o
+
+
 # Object files for target myShell
 myShell_OBJECTS = \
 "CMakeFiles/myShell.dir/myshell.c.o" \
-"CMakeFiles/myShell.dir/utility.c.o"
+"CMakeFiles/myShell.dir/utility.c.o" \
+"CMakeFiles/myShell.dir/command.c.o" \
+"CMakeFiles/myShell.dir/internal.c.o" \
+"CMakeFiles/myShell.dir/parser.c.o"
 
 # External object files for target myShell
 myShell_EXTERNAL_OBJECTS =
 
 myShell: CMakeFiles/myShell.dir/myshell.c.o
 myShell: CMakeFiles/myShell.dir/utility.c.o
+myShell: CMakeFiles/myShell.dir/command.c.o
+myShell: CMakeFiles/myShell.dir/internal.c.o
+myShell: CMakeFiles/myShell.dir/parser.c.o
 myShell: CMakeFiles/myShell.dir/build.make
 myShell: CMakeFiles/myShell.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C executable myShell"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking C executable myShell"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/myShell.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -127,6 +205,9 @@ CMakeFiles/myShell.dir/build: myShell
 
 CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/myshell.c.o.requires
 CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/utility.c.o.requires
+CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/command.c.o.requires
+CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/internal.c.o.requires
+CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/parser.c.o.requires
 
 .PHONY : CMakeFiles/myShell.dir/requires
 

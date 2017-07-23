@@ -123,6 +123,60 @@ myShell/fast:
 	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/build
 .PHONY : myShell/fast
 
+command.o: command.c.o
+
+.PHONY : command.o
+
+# target to build an object file
+command.c.o:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/command.c.o
+.PHONY : command.c.o
+
+command.i: command.c.i
+
+.PHONY : command.i
+
+# target to preprocess a source file
+command.c.i:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/command.c.i
+.PHONY : command.c.i
+
+command.s: command.c.s
+
+.PHONY : command.s
+
+# target to generate assembly for a file
+command.c.s:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/command.c.s
+.PHONY : command.c.s
+
+internal.o: internal.c.o
+
+.PHONY : internal.o
+
+# target to build an object file
+internal.c.o:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/internal.c.o
+.PHONY : internal.c.o
+
+internal.i: internal.c.i
+
+.PHONY : internal.i
+
+# target to preprocess a source file
+internal.c.i:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/internal.c.i
+.PHONY : internal.c.i
+
+internal.s: internal.c.s
+
+.PHONY : internal.s
+
+# target to generate assembly for a file
+internal.c.s:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/internal.c.s
+.PHONY : internal.c.s
+
 myshell.o: myshell.c.o
 
 .PHONY : myshell.o
@@ -149,6 +203,33 @@ myshell.s: myshell.c.s
 myshell.c.s:
 	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/myshell.c.s
 .PHONY : myshell.c.s
+
+parser.o: parser.c.o
+
+.PHONY : parser.o
+
+# target to build an object file
+parser.c.o:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/parser.c.o
+.PHONY : parser.c.o
+
+parser.i: parser.c.i
+
+.PHONY : parser.i
+
+# target to preprocess a source file
+parser.c.i:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/parser.c.i
+.PHONY : parser.c.i
+
+parser.s: parser.c.s
+
+.PHONY : parser.s
+
+# target to generate assembly for a file
+parser.c.s:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/parser.c.s
+.PHONY : parser.c.s
 
 utility.o: utility.c.o
 
@@ -186,9 +267,18 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... myShell"
+	@echo "... command.o"
+	@echo "... command.i"
+	@echo "... command.s"
+	@echo "... internal.o"
+	@echo "... internal.i"
+	@echo "... internal.s"
 	@echo "... myshell.o"
 	@echo "... myshell.i"
 	@echo "... myshell.s"
+	@echo "... parser.o"
+	@echo "... parser.i"
+	@echo "... parser.s"
 	@echo "... utility.o"
 	@echo "... utility.i"
 	@echo "... utility.s"

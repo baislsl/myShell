@@ -3,68 +3,82 @@
 //
 
 #include "utility.h"
+#include "parser.h"
 
 void err_sys(char *msg, int outFd){
     write(outFd, msg, strlen(msg));
 }
 
+bool isEmpty(char *str, size_t strLength){
+    for(size_t i =0;i<strLength;i++){
+        if(str[i] > ' ')
+            return false;
+    }
+    return true;
+}
 
-int findCharacter(char *str, size_t strLength, size_t from[], size_t to[], size_t indexSize, Func *func) {
-    bool singleQuote = false, doubleQuote = false;
-    size_t index = 0; // the index of index[]
-    from[0] = 0;
-    size_t i = 0;
-    while (i < strLength) {
-        if (func(str[i]) && !singleQuote && !doubleQuote) {
-            if (index == indexSize)
-                return -1;  // too much such character
-            else {
-                to[index++] = i;
-                if (i == 0) {
-                    --index;
-                }
-                do{
-                    ++i;
-                }while(func(str[i]));
-                if(index != indexSize)
-                    from[index] = i;
-            }
-        } else if (str[i] == '\'') {
-            singleQuote = !singleQuote;
-            ++i;
-        } else if (str[i] == '\"') {
-            doubleQuote = !doubleQuote;
-            ++i;
-        }else{
-            ++i;
+// still a bug version
+ssize_t isPipe(char *str, size_t strLength) {
+    if(isEmpty(str, strLength)) return -1;
+    for(ssize_t i = 0;i<strLength; i++){
+        if(str[i] == '|')
+            return i;
+    }
+    return strLength;
+}
+
+int isInputRedirect(char *str, size_t strLength){
+    for(ssize_t i = 0;i<strLength; i++){
+        if(str[i] == '<')
+            return i;
+    }
+    return -1;
+}
+
+int isOutputRedirect(char *str, size_t strLength){
+    for(ssize_t i = 0;i<strLength; i++){
+        if(str[i] == '>')
+            return i;
+    }
+    return -1;
+}
+
+bool isBackground(char *cmd) {
+
+}
+//: bg、 cd 、 continue、 echo 、 exec 、
+// exit 、fg 、jobs 、pwd 、set 、shift 、test 、time 、umask 、unset
+bool isInternalCmd(char *cmd, size_t cmdLength) {
+    static char *internalCmd[19] = {
+            "bg", "cd", "continus", "echo", "exec", "exit", "fg", "jobs", "pwd", "set", "test", "time",
+            "umask", "unset", "clr", "dir", "environ", "help", "quit"
+    };
+    char arg[MAXLENGTH];
+    size_t size = getFirstArg(cmd, cmdLength, arg);
+    for (int i = 0; i < 19; i++) {
+        if (strcmp(internalCmd[i], arg) == 0) {
+            return true;
         }
     }
-    to[index++] = i;
-    return (int) index;
+
+    return false;
 }
 
-
-bool isSpace(char cc) {
-    return cc <= ' ';
-}
-
-
-ssize_t ridFind(char *str, size_t strLength, char *store[], size_t storeSize, Func *func) {
-    size_t from[storeSize], to[storeSize];
-    int size;
-    if ((size = findCharacter(str, strLength, from, to, storeSize, func)) < 0) {
-        return -1;
+int isIoRedirect(char *str, size_t strLength) {
+    for(ssize_t i = 0;i<strLength; i++){
+        if(str[i] == '<' || str[i] == '>' )
+            return i;
     }
-    for (size_t i = 0; i < size; i++) {
-        memmove(store[i], str + from[i], to[i] - from[i]);
-    }
-    return size;
+    return -1;
 }
 
-ssize_t spaceSplit(char *str, size_t strLength, char *store[], size_t storeSize) {
-    return ridFind(str, strLength, store, storeSize, isSpace);
+bool isPipeCharacter(char cc){
+    return cc == '|';
 }
 
+ssize_t getAllPipeIndex(char *cmd, size_t cmdLength, int *index[], size_t maxIndex){
+    return findCharacter(cmd, cmdLength, index, maxIndex, isPipeCharacter);
+}
 
 void utilTest() {
     // char *a = "while return     gg, \" sh\" ,kk";

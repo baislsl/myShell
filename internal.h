@@ -9,4 +9,13 @@
 #include <stdio.h>
 #include "utility.h"
 
+int pwd(char *args[], size_t n);
+
+int cd(char *args[], const size_t n);
+
+static char *getPath(){
+    static char path[MAXPATH];
+    getcwd(path, MAXPATH);
+    return path;
+}
 #endif //MYSHELL_INTERNAL_H

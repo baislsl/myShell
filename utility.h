@@ -4,6 +4,7 @@
 
 #ifndef MYSHELL_UTILITY_H
 #define MYSHELL_UTILITY_H
+
 #include <glob.h>
 #include <stdbool.h>
 #include <memory.h>
@@ -11,12 +12,28 @@
 #include <stdio.h>
 #include <zconf.h>
 #include "myshell.h"
-typedef bool Func(char cc);
 
 void err_sys(char *msg, int outFd);
-int findCharacter(char *str, size_t strLength, size_t from[], size_t to[], size_t indexSize, Func *func);
-bool isSpace(char cc);
-ssize_t ridFind(char *str, size_t strLength, char *store[], size_t storeSize, Func *func);
-ssize_t spaceSplit(char *str, size_t strLength, char *store[], size_t storeSize);
+
+ssize_t isPipe(char *cmd, size_t cmdLength);
+
+bool isBackground(char *cmd);
+
+bool isInternalCmd(char *cmd, size_t cmdLength);
+
+int isIoRedirect(char *cmd, size_t cmdLength);
+
+int isOutputRedirect(char *str, size_t strLength);
+
+int isInputRedirect(char *str, size_t strLength);
+
+/**
+ * @return the number of command after divide by '|'
+ *
+ *
+ * */
+ssize_t getAllPipeIndex(char *cmd, size_t cmdLength, int *index[], size_t maxIndex);
+
+
 
 #endif //MYSHELL_UTILITY_H

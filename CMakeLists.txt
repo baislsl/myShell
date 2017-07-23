@@ -3,5 +3,5 @@ project(myShell)
 
 set(CMAKE_C_STANDARD 99)
 
-set(SOURCE_FILES myshell.c myshell.h utility.c cd.h internal.h pwd.h utility.h)
+set(SOURCE_FILES myshell.c myshell.h utility.c internal.h utility.h command.c command.h internal.c parser.c parser.h)
 add_executable(myShell ${SOURCE_FILES})

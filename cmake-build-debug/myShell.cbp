@@ -84,7 +84,13 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/baislsl/c_c++/myShell/cd.h">
+		<Unit filename="/home/baislsl/c_c++/myShell/command.c">
+			<Option target="myShell"/>
+		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/command.h">
+			<Option target="myShell"/>
+		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/internal.c">
 			<Option target="myShell"/>
 		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/internal.h">
@@ -96,7 +102,10 @@
 		<Unit filename="/home/baislsl/c_c++/myShell/myshell.h">
 			<Option target="myShell"/>
 		</Unit>
-		<Unit filename="/home/baislsl/c_c++/myShell/pwd.h">
+		<Unit filename="/home/baislsl/c_c++/myShell/parser.c">
+			<Option target="myShell"/>
+		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/parser.h">
 			<Option target="myShell"/>
 		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/utility.c">

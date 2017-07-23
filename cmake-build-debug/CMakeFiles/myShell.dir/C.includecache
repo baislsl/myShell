@@ -6,11 +6,25 @@
 
 #IncludeRegexTransform: 
 
-/home/baislsl/c_c++/myShell/cd.h
+/home/baislsl/c_c++/myShell/command.c
+wait.h
+-
+command.h
+/home/baislsl/c_c++/myShell/command.h
+myshell.h
+/home/baislsl/c_c++/myShell/myshell.h
+parser.h
+/home/baislsl/c_c++/myShell/parser.h
 internal.h
 /home/baislsl/c_c++/myShell/internal.h
-pwd.h
-/home/baislsl/c_c++/myShell/pwd.h
+
+/home/baislsl/c_c++/myShell/command.h
+glob.h
+-
+
+/home/baislsl/c_c++/myShell/internal.c
+internal.h
+/home/baislsl/c_c++/myShell/internal.h
 
 /home/baislsl/c_c++/myShell/internal.h
 zconf.h
@@ -25,20 +39,14 @@ stdio.h
 -
 unistd.h
 -
-stdbool.h
--
 memory.h
 -
 stdlib.h
 -
-wait.h
--
-myshell.h
-/home/baislsl/c_c++/myShell/myshell.h
-cd.h
-/home/baislsl/c_c++/myShell/cd.h
-pwd.h
-/home/baislsl/c_c++/myShell/pwd.h
+internal.h
+/home/baislsl/c_c++/myShell/internal.h
+command.h
+/home/baislsl/c_c++/myShell/command.h
 
 /home/baislsl/c_c++/myShell/myshell.h
 wchar.h
@@ -50,13 +58,25 @@ stdio.h
 utility.h
 /home/baislsl/c_c++/myShell/utility.h
 
-/home/baislsl/c_c++/myShell/pwd.h
-internal.h
-/home/baislsl/c_c++/myShell/internal.h
+/home/baislsl/c_c++/myShell/parser.c
+memory.h
+-
+parser.h
+/home/baislsl/c_c++/myShell/parser.h
+
+/home/baislsl/c_c++/myShell/parser.h
+stdbool.h
+-
+stddef.h
+-
+zconf.h
+-
 
 /home/baislsl/c_c++/myShell/utility.c
 utility.h
 /home/baislsl/c_c++/myShell/utility.h
+parser.h
+/home/baislsl/c_c++/myShell/parser.h
 
 /home/baislsl/c_c++/myShell/utility.h
 glob.h

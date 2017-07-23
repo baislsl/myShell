@@ -1,6 +1,9 @@
 file(REMOVE_RECURSE
   "CMakeFiles/myShell.dir/myshell.c.o"
   "CMakeFiles/myShell.dir/utility.c.o"
+  "CMakeFiles/myShell.dir/command.c.o"
+  "CMakeFiles/myShell.dir/internal.c.o"
+  "CMakeFiles/myShell.dir/parser.c.o"
   "myShell.pdb"
   "myShell"
 )

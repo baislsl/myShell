@@ -1,48 +1,15 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <stdbool.h>
 #include <memory.h>
 #include <stdlib.h>
-#include <wait.h>
-#include "myshell.h"
-#include "cd.h"
-#include "pwd.h"
+#include "internal.h"
+#include "command.h"
 
-#define MAXLINE 80 /* The maximum length command */
-#define MAXPATH 256
-#define MAXLENGTH 4096
-
-char *path[MAXPATH];
-size_t pathIndex;
-
-bool isPathDiv(char cc) {
-    return cc == ':';
-}
-
-int setpath2(char *newPath) {
-    setenv("PATH", newPath, 1);
-    // puts(getenv("PATH"));
-}
+int pipeFd[MAX_PIPE][2];
 
 int setpath(char *newPath) {
-    char *add[MAXPATH - pathIndex];
-    for (int i = 0; i < MAXPATH - pathIndex; i++) {
-        add[i] = (char *) malloc(MAXLINE);
-    }
-
-    ssize_t n = ridFind(newPath, strlen(newPath), add, MAXPATH - pathIndex, isPathDiv);
-    if (n < 0) {
-        for (int i = 0; i < MAXPATH - pathIndex; i++)
-            free(add[i]);
-        return -1;
-    }
-    for (ssize_t i = 0; i < n; i++) {
-        path[pathIndex + i] = add[i];
-    }
-    for (ssize_t i = n; i < MAXPATH - pathIndex; i++) {
-        free(add[i]);
-    }
-    return n;
+    setenv("PATH", newPath, 1);
+    // puts(getenv("PATH"));
 }
 
 ssize_t readCommand(char *cmd) {
@@ -53,134 +20,65 @@ ssize_t readCommand(char *cmd) {
     return n;
 }
 
-bool isBackground(char *cmd) {
-
-}
-
-int isInternalCmd(char *cmd, size_t cmdLength) {
-    return false;
-}
-
-int isPipe(char *cmd, size_t cmdLength) {
-    return false;
-}
-
-
-int isIoRedirect(char *cmd, size_t cmdLength) {
-    return false;
-}
-
 void init() {
     printf("myshell> ");
     fflush(stdout);
-    setpath2("/bin:/usr/bin");
+    setpath("/bin:/usr/bin");
+    for (size_t i = 0; i < MAX_PIPE; i++) {
+        pipe(pipeFd[i]);
+    }
 }
 
-
-int normalCmd(char *cmd, size_t cmdLength, int inFd, int outFd, int fork) {
-    dup2(inFd, STDIN_FILENO);
-    dup2(outFd, STDOUT_FILENO);
-
-
-    char args_data[MAXLINE / 2 + 1][MAXLENGTH];
-    char *args[MAXLINE / 2 + 1];
-    for (int i = 0; i < MAXLINE / 2 + 1; i++) {
-        args[i] = args_data[i];
-    }
-
-    ssize_t n = spaceSplit(cmd, cmdLength, args, MAXLINE / 2 + 1);
-
-    if (n < 0) {
-        err_sys("to many arguments", outFd);
+int runNoPipeCmd(char *cmd, size_t cmdLength, int inFd, int outFd) {
+    if (isInternalCmd(cmd, cmdLength)) {
+        runInternalCmd(cmd, strlen(cmd), inFd, outFd);
     } else {
-        for (size_t i = n; i < MAXLINE / 2 + 1; i++) {
-            args[i] = NULL;
-        }
-        execvp(args[0], args);
-    }
-
-    close(inFd);
-    close(outFd);
-}
-
-int runInternalCmd(char *cmd, size_t cmdLength, int inFd, int outFd) {
-    char *args[MAXLINE / 2 + 1]; /* command line arguments */
-    for (int i = 0; i < MAXLINE / 2 + 1; i++) {
-        args[i] = (char *) malloc(MAXLINE);
-    }
-    const ssize_t n = spaceSplit(cmd, strlen(cmd), args, MAXLINE / 2 + 1);
-    if (isInternalCmd(cmd, strlen(cmd))) {
-        if (strcmp(args[0], "cd") == 0) {
-            cd(args, n, outFd);
-        } else if (strcmp(args[0], "pwd") == 0) {
-            pwd(args, n, outFd);
-        }
-    }
-    return 0;
-}
-
-void runOuterCmd(char *cmd, size_t cmdLength, int inFd, int outFd) {
-    int fd[2];
-    pipe(fd);
-    int pid = fork();
-    if (pid < 0) {
-        printf("Error when fork a child process");
-    } else if (pid > 0) { // parent
-        close(fd[1]);
-        char background[2];
-        read(fd[0], background, 1);
-        if (background[0] == 'y') {
-        } else {
-            waitpid(pid, NULL, 0);
-        }
-    } else {  // child
-        close(fd[0]);
-        if (isBackground(cmd)) {
-            write(fd[1], "y", 1);
-        } else {
-            write(fd[1], "n", 1);
-        }
-        int ok = normalCmd(cmd, cmdLength, inFd, outFd, pid);
-        if (!ok) {
-            // shouldRun = 0;
-        }
-        exit(0);
+        runOuterCmd(cmd, cmdLength, inFd, outFd);
     }
 }
 
 void runCommand(char *cmd) {
-    int outFd = STDOUT_FILENO, inFd = STDIN_FILENO;
-
-    if (isPipe(cmd, strlen(cmd))) {
-        return;
+    int pipeIndex[MAXLENGTH];
+    ssize_t cmdNumbers = getAllPipeIndex(cmd, strlen(cmd), pipeIndex, MAXLENGTH) + 1;
+    int pipeFd[cmdNumbers - 1][2];
+    for (size_t i = 0; i < cmdNumbers - 1; i++) {
+        pipe(pipeFd[i]);
     }
-    if (isInternalCmd(cmd, strlen(cmd))) {
-        runInternalCmd(cmd, strlen(cmd), inFd, outFd);
-    } else {
-        runOuterCmd(cmd, strlen(cmd), inFd, outFd);
+
+    Command command[cmdNumbers];
+//    dup2(STDIN_FILENO, pipeFd[0][0]);
+//    dup2(STDOUT_FILENO, pipeFd[cmdNumbers][1]);
+//    pipeFd[0][0] = STDIN_FILENO;
+//    pipeFd[cmdNumbers][1] = STDOUT_FILENO;
+    for (size_t i = 0; i < cmdNumbers; i++) {
+        int from = i == 0 ? 0 : pipeIndex[i - 1] + 1;
+        int to = (i == cmdNumbers - 1) ? (int) strlen(cmd) : pipeIndex[i];
+        int inFd = i == 0 ? STDIN_FILENO : pipeFd[i - 1][0];
+        int outFd = (i == cmdNumbers - 1) ? STDOUT_FILENO : pipeFd[i][1];
+        int n = buildCmd(command + i, cmd + from, to - from, inFd, outFd);
+        if(n < 0){
+            err_sys("build fail", STDOUT_FILENO);
+        }
+    }
+
+    for (size_t i = 0; i < cmdNumbers; i++) {
+        execCommand(&command[i]);
+        freeCommand(&command[i]);
     }
 
 
 }
 
 int main(void) {
-    char *args[MAXLINE / 2 + 1]; /* command line arguments */
     char cmd[MAXLINE];
     int shouldRun = 1; /* flag to determine when to exit program */
     init();
     while (shouldRun) {
+        printf("myshell:%s> ", getPath());
+        fflush(stdout);
         readCommand(cmd);
         runCommand(cmd);
-/**
-* After reading user input, the steps are:
-*内部命令:
-*.....
-*外部命令:
-* (1) fork a child process using fork()
-* (2) the child process will invoke execvp()
-* (3) if command included &, parent will invoke wait()
-*.....
-*/
+        fflush(stdout);
     }
     return 0;
 }
