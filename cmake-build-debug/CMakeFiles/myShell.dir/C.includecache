@@ -21,6 +21,8 @@ internal.h
 /home/baislsl/c_c++/myShell/command.h
 glob.h
 -
+myshell.h
+/home/baislsl/c_c++/myShell/myshell.h
 
 /home/baislsl/c_c++/myShell/internal.c
 internal.h

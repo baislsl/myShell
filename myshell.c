@@ -29,14 +29,6 @@ void init() {
     }
 }
 
-int runNoPipeCmd(char *cmd, size_t cmdLength, int inFd, int outFd) {
-    if (isInternalCmd(cmd, cmdLength)) {
-        runInternalCmd(cmd, strlen(cmd), inFd, outFd);
-    } else {
-        runOuterCmd(cmd, cmdLength, inFd, outFd);
-    }
-}
-
 void runCommand(char *cmd) {
     int pipeIndex[MAXLENGTH];
     ssize_t cmdNumbers = getAllPipeIndex(cmd, strlen(cmd), pipeIndex, MAXLENGTH) + 1;
@@ -46,16 +38,20 @@ void runCommand(char *cmd) {
     }
 
     Command command[cmdNumbers];
-//    dup2(STDIN_FILENO, pipeFd[0][0]);
-//    dup2(STDOUT_FILENO, pipeFd[cmdNumbers][1]);
-//    pipeFd[0][0] = STDIN_FILENO;
-//    pipeFd[cmdNumbers][1] = STDOUT_FILENO;
     for (size_t i = 0; i < cmdNumbers; i++) {
         int from = i == 0 ? 0 : pipeIndex[i - 1] + 1;
         int to = (i == cmdNumbers - 1) ? (int) strlen(cmd) : pipeIndex[i];
-        int inFd = i == 0 ? STDIN_FILENO : pipeFd[i - 1][0];
-        int outFd = (i == cmdNumbers - 1) ? STDOUT_FILENO : pipeFd[i][1];
-        int n = buildCmd(command + i, cmd + from, to - from, inFd, outFd);
+        int n = buildCmd(command + i, cmd + from, to - from);
+        if(i == 0){
+            setInDirect(command + i, true, STDIN_FILENO, 0);
+        }else{
+            setInDirect(command + i, false, pipeFd[i - 1][0], pipeFd[i - 1][1]);
+        }
+        if(i == cmdNumbers - 1){
+            setOutDirect(command + i, true, STDOUT_FILENO, 0);
+        }else{
+            setOutDirect(command + i, false, pipeFd[i][1], pipeFd[i][0]);
+        }
         if(n < 0){
             err_sys("build fail", STDOUT_FILENO);
         }

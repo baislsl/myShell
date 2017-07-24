@@ -10,13 +10,16 @@ int findCharacter(char *str, size_t strLength, size_t index[], size_t indexSize,
     bool singleQuote = false, doubleQuote = false;
     size_t k = 0; // the index of index[]
     size_t i = 0;
+
+    while(i < strLength && func(str[i])) ++i;   // trim the begin
+
     while (i < strLength) {
         if (func(str[i]) && !singleQuote && !doubleQuote) {
             if (k == indexSize)
                 return -1;  // too much such character
-            else {
-                index[k++] = i++;
-            }
+            index[k++] = i;
+            while(i < strLength && func(str[i])) ++i;
+
         } else if (str[i] == '\'') {
             singleQuote = !singleQuote;
             ++i;
@@ -43,7 +46,8 @@ ssize_t ridFind(char *str, size_t strLength, char *store[], size_t storeSize, Fu
     for (size_t i = 0; i <= size; i++) {
         size_t from = i == 0 ? 0 : index[i - 1] + 1;
         size_t to = (i == size) ? strLength : index[i];
-        memmove(store[i], str + from, to - from);
+        memcpy(store[i], str + from, to - from);
+        store[i][to - from] = 0;
     }
     return size + 1;
 }

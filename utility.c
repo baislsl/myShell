@@ -76,8 +76,8 @@ bool isPipeCharacter(char cc){
     return cc == '|';
 }
 
-ssize_t getAllPipeIndex(char *cmd, size_t cmdLength, int *index[], size_t maxIndex){
-    return findCharacter(cmd, cmdLength, index, maxIndex, isPipeCharacter);
+ssize_t getAllPipeIndex(char *cmd, size_t cmdLength, int index[], size_t maxIndex){
+    return findCharacter(cmd, cmdLength, (size_t*)index, maxIndex, isPipeCharacter);
 }
 
 void utilTest() {

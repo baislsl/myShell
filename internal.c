@@ -12,7 +12,7 @@ int pwd(char *args[], size_t n) {
             err_sys("get path fail", STDOUT_FILENO);
         }
         write(STDOUT_FILENO, path, strlen(path));
-        write(STDOUT_FILENO, "\n", 1);
+        write(STDOUT_FILENO, "\n", 2);
     }
 }
 

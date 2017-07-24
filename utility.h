@@ -32,7 +32,7 @@ int isInputRedirect(char *str, size_t strLength);
  *
  *
  * */
-ssize_t getAllPipeIndex(char *cmd, size_t cmdLength, int *index[], size_t maxIndex);
+ssize_t getAllPipeIndex(char *cmd, size_t cmdLength, int index[], size_t maxIndex);
 
 
 
