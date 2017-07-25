@@ -72,13 +72,7 @@ int isIoRedirect(char *str, size_t strLength) {
     return -1;
 }
 
-bool isPipeCharacter(char cc){
-    return cc == '|';
-}
 
-ssize_t getAllPipeIndex(char *cmd, size_t cmdLength, int index[], size_t maxIndex){
-    return findCharacter(cmd, cmdLength, (size_t*)index, maxIndex, isPipeCharacter);
-}
 
 void utilTest() {
     // char *a = "while return     gg, \" sh\" ,kk";

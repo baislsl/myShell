@@ -2,8 +2,10 @@
 #include <unistd.h>
 #include <memory.h>
 #include <stdlib.h>
+#include <fcntl.h>
 #include "internal.h"
 #include "command.h"
+#include "parser.h"
 
 int pipeFd[MAX_PIPE][2];
 
@@ -31,34 +33,52 @@ void init() {
 
 void runCommand(char *cmd) {
     int pipeIndex[MAXLENGTH];
-    ssize_t cmdNumbers = getAllPipeIndex(cmd, strlen(cmd), pipeIndex, MAXLENGTH) + 1;
+    char spiltCmd[MAX_PIPE + 1][MAXLENGTH];
+    char *tmpSplitCmd[MAX_PIPE + 1];
+    for (size_t i = 0; i < MAX_PIPE + 1; i++) {
+        tmpSplitCmd[i] = spiltCmd[i];
+    }
+    ssize_t cmdNumbers = pipeSplit(cmd, strlen(cmd), tmpSplitCmd, MAX_PIPE + 1);
+    // ssize_t cmdNumbers = getAllPipeIndex(cmd, strlen(cmd), pipeIndex, MAXLENGTH) + 1;
     int pipeFd[cmdNumbers - 1][2];
     for (size_t i = 0; i < cmdNumbers - 1; i++) {
         pipe(pipeFd[i]);
     }
 
     Command command[cmdNumbers];
+    int fdr, fdw;
+    char eof = EOF;
     for (size_t i = 0; i < cmdNumbers; i++) {
-        int from = i == 0 ? 0 : pipeIndex[i - 1] + 1;
-        int to = (i == cmdNumbers - 1) ? (int) strlen(cmd) : pipeIndex[i];
-        int n = buildCmd(command + i, cmd + from, to - from);
-        if(i == 0){
+        if (i % 2 == 0) {
+            fdw = open("pipe_w", O_WRONLY | O_TRUNC );
+            fdr = open("pipe_r", O_RDONLY );
+        } else {
+            fdw = open("pipe_r", O_WRONLY | O_TRUNC);
+            fdr = open("pipe_w", O_RDONLY );
+        }
+        int n = buildCmd(command + i, spiltCmd[i], strlen(spiltCmd[i]));
+        if (i == 0) {
             setInDirect(command + i, true, STDIN_FILENO, 0);
-        }else{
-            setInDirect(command + i, false, pipeFd[i - 1][0], pipeFd[i - 1][1]);
+        } else {
+            //setInDirect(command + i, false, pipeFd[i - 1][0], pipeFd[i - 1][1]);
+            setInDirect(command + i, true, fdr, 0);
         }
-        if(i == cmdNumbers - 1){
+        if (i == cmdNumbers - 1) {
             setOutDirect(command + i, true, STDOUT_FILENO, 0);
-        }else{
-            setOutDirect(command + i, false, pipeFd[i][1], pipeFd[i][0]);
+        } else {
+            // setOutDirect(command + i, false, pipeFd[i][1], pipeFd[i][0]);
+            setOutDirect(command + i, true, fdw, 0);
         }
-        if(n < 0){
+        if (n < 0) {
             err_sys("build fail", STDOUT_FILENO);
         }
+        execCommand(&command[i]);
+        close(fdw);
+        close(fdr);
     }
 
+
     for (size_t i = 0; i < cmdNumbers; i++) {
-        execCommand(&command[i]);
         freeCommand(&command[i]);
     }
 
@@ -72,7 +92,8 @@ int main(void) {
     while (shouldRun) {
         printf("myshell:%s> ", getPath());
         fflush(stdout);
-        readCommand(cmd);
+        if(readCommand(cmd) == -1)
+            err_sys("error", STDOUT_FILENO);
         runCommand(cmd);
         fflush(stdout);
     }

@@ -21,7 +21,7 @@ struct _Command {
     bool inFlag, outFlag;   // inflag true is in put not pipe
 };
 
-int buildCmd(CommandPtr ptr, char *cmd, int cmdLength);
+int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength);
 
 int execCommand(CommandPtr cmd);
 

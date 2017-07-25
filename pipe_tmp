@@ -1,0 +1,26 @@
+总用量 152
+drwxrwxr-x 3 baislsl baislsl  4096 7月  25 01:02 cmake-build-debug
+-rw-rw-r-- 1 baislsl baislsl   237 7月  23 18:56 CMakeLists.txt
+-rw-rw-r-- 1 baislsl baislsl  3125 7月  25 00:28 command.c
+-rw-rw-r-- 1 baislsl baislsl   699 7月  25 00:11 command.h
+-rw-rw-r-- 1 baislsl baislsl  5072 7月  25 00:28 command.o
+-rw-rw-r-- 1 baislsl baislsl   792 7月  24 20:51 internal.c
+-rw-rw-r-- 1 baislsl baislsl   358 7月  23 20:25 internal.h
+-rw-rw-r-- 1 baislsl baislsl  2776 7月  25 00:11 internal.o
+-rw-rw-r-- 1 baislsl baislsl  1064 7月  21 18:57 LICENSE
+-rw-rw-r-- 1 baislsl baislsl   402 7月  25 00:01 makefile
+-rw-rw-r-- 1 baislsl baislsl  2361 7月  25 01:02 myshell.c
+-rw-rw-r-- 1 baislsl baislsl   312 7月  25 00:11 myshell.h
+-rw-rw-r-- 1 baislsl baislsl  5160 7月  25 01:01 myshell.o
+-rw-rw-r-- 1 baislsl baislsl  3909 7月  25 00:21 parser.c
+-rw-rw-r-- 1 baislsl baislsl   716 7月  25 00:11 parser.h
+-rw-rw-r-- 1 baislsl baislsl  4408 7月  25 00:21 parser.o
+-rwxrwxrwx 1 baislsl baislsl  1506 7月  25 01:04 pipe_tmp
+-rw-rw-r-- 1 baislsl baislsl   171 7月  25 00:52 README.md
+-rwxrwxr-x 1 baislsl baislsl 19792 7月  25 01:01 shell
+-rwxrwxr-x 1 baislsl baislsl  8712 7月  22 21:29 test
+-rw-rw-r-- 1 baislsl baislsl  1559 7月  23 19:43 test.c
+-rwxrwxr-x 1 baislsl baislsl 13176 7月  22 20:39 util
+-rw-rw-r-- 1 baislsl baislsl  2031 7月  25 00:00 utility.c
+-rw-rw-r-- 1 baislsl baislsl   579 7月  25 00:00 utility.h
+-rw-rw-r-- 1 baislsl baislsl  4376 7月  25 00:21 utility.o

@@ -3,7 +3,7 @@
 //
 #include "internal.h"
 
-int pwd(char *args[], size_t n) {
+int pwd(const char *args[], size_t n) {
     if (n != 1) {
         err_sys("gg pwd\n", STDOUT_FILENO);
     } else {
@@ -17,7 +17,7 @@ int pwd(char *args[], size_t n) {
 }
 
 
-int cd(char *args[], const size_t n) {
+int cd(const char *args[], size_t n) {
     if(n == 1){
         return chdir(getenv("HOME"));
     }
@@ -33,3 +33,7 @@ int cd(char *args[], const size_t n) {
         return ret;
     }
 }
+
+
+
+

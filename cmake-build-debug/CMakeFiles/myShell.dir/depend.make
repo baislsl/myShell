@@ -17,6 +17,7 @@ CMakeFiles/myShell.dir/myshell.c.o: ../command.h
 CMakeFiles/myShell.dir/myshell.c.o: ../internal.h
 CMakeFiles/myShell.dir/myshell.c.o: ../myshell.c
 CMakeFiles/myShell.dir/myshell.c.o: ../myshell.h
+CMakeFiles/myShell.dir/myshell.c.o: ../parser.h
 CMakeFiles/myShell.dir/myshell.c.o: ../utility.h
 
 CMakeFiles/myShell.dir/parser.c.o: ../parser.c

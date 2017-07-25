@@ -45,10 +45,14 @@ memory.h
 -
 stdlib.h
 -
+fcntl.h
+-
 internal.h
 /home/baislsl/c_c++/myShell/internal.h
 command.h
 /home/baislsl/c_c++/myShell/command.h
+parser.h
+/home/baislsl/c_c++/myShell/parser.h
 
 /home/baislsl/c_c++/myShell/myshell.h
 wchar.h

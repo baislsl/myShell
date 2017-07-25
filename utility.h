@@ -27,12 +27,7 @@ int isOutputRedirect(char *str, size_t strLength);
 
 int isInputRedirect(char *str, size_t strLength);
 
-/**
- * @return the number of command after divide by '|'
- *
- *
- * */
-ssize_t getAllPipeIndex(char *cmd, size_t cmdLength, int index[], size_t maxIndex);
+
 
 
 
