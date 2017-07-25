@@ -9,7 +9,7 @@
 #include "myshell.h"
 
 typedef struct _Command Command;
-typedef struct _Command* CommandPtr;
+typedef struct _Command *CommandPtr;
 
 struct _Command {
     size_t argc;
@@ -30,4 +30,18 @@ void freeCommand(CommandPtr cmd);
 int setInDirect(CommandPtr cmd, bool flag, int inFd, int inWritePipe);
 
 int setOutDirect(CommandPtr cmd, bool flag, int outFd, int outReadPipe);
+
+
+int isInputRedirect(CommandPtr cmd);
+
+int isOutputRedirect(CommandPtr cmd);
+
+int getOutputRedirect(CommandPtr cmd);
+
+int getInputRedirect(CommandPtr cmd);
+
+int ridInputRedirect(CommandPtr cmd);
+
+int ridOutputRedirect(CommandPtr cmd);
+
 #endif //MYSHELL_COMMAND_H

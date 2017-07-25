@@ -10,16 +10,6 @@
 #include "utility.h"
 
 typedef int innerFunc(const char *args[], size_t n);
+int execInner(char *name, const char *args[], size_t argc);
 
-int pwd(const char *args[], size_t n);
-
-int cd(const char *args[],  size_t n);
-
-int clr(const char *args[], size_t n);
-
-static char *getPath(){
-    static char path[MAXPATH];
-    getcwd(path, MAXPATH);
-    return path;
-}
 #endif //MYSHELL_INTERNAL_H

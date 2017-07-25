@@ -12,6 +12,18 @@
 #include <stdio.h>
 #include <zconf.h>
 #include "myshell.h"
+#include "command.h"
+
+
+static char *getPath(){
+    static char path[MAXPATH];
+    getcwd(path, MAXPATH);
+    return path;
+}
+
+int setpath(char *newPath);
+
+int addPath(char *newPath);
 
 void err_sys(char *msg, int outFd);
 
@@ -22,12 +34,6 @@ bool isBackground(char *cmd);
 bool isInternalCmd(char *cmd, size_t cmdLength);
 
 int isIoRedirect(char *cmd, size_t cmdLength);
-
-int isOutputRedirect(char *str, size_t strLength);
-
-int isInputRedirect(char *str, size_t strLength);
-
-
 
 
 

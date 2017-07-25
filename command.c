@@ -3,6 +3,7 @@
 //
 
 #include <wait.h>
+#include <fcntl.h>
 #include "command.h"
 #include "myshell.h"
 #include "parser.h"
@@ -109,25 +110,9 @@ int runOuterCmd(CommandPtr cmd) {
     }
 }
 
-struct tie {
-    innerFunc *func;
-    char *cmd;
-};
-typedef struct tie innerCmd;
-
 int runInternalCmd(CommandPtr cmd) {
-    static innerCmd innerFuncList[] = {
-            {cd,  "cd"},
-            {pwd, "pwd"},
-    };
     char *cmdName = commandName(cmd);
-    for (int i = 0;i<100;i++) {
-        innerCmd *icmd = innerFuncList + i;
-        if (strcmp(icmd->cmd, cmdName) == 0) {
-            return (icmd->func)(cmd->argv, cmd->argc);
-        }
-    }
-    return -1;
+    return execInner(cmdName, cmd->argv, cmd->argc);
 }
 
 int execCommand(CommandPtr cmd) {
@@ -148,4 +133,90 @@ void freeCommand(CommandPtr cmd) {
 }
 
 
+int getInputRedirect(const CommandPtr cmd) {
+    int fd = 0;
+    for (size_t i = 0; i < cmd->argc; i++) {
+        if (strcmp("<", cmd->argv[i]) == 0) {
+            if (i == cmd->argc - 1)  // no direct file given
+                return 0;
+            fd = open(cmd->argv[i + 1], O_RDONLY);
+            if (fd < 0)
+                return 0;
+            else
+                return fd;
 
+        }
+    }
+    return 0;
+}
+
+int getOutputRedirect(const CommandPtr cmd) {
+    int fd = 0;
+    for (size_t i = 0; i < cmd->argc; i++) {
+        if (strcmp(">", cmd->argv[i]) == 0) {
+            if (i == cmd->argc - 1)  // no direct file given
+                return 0;
+            fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_TRUNC);
+            break;
+        }
+        if (strcmp(">>", cmd->argv[i]) == 0) {
+            if (i == cmd->argc - 1)  // no direct file given
+                return 0;
+            fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_APPEND);
+            break;
+        }
+    }
+    if (fd < 0)
+        return 0;
+    else
+        return fd;
+}
+
+int isInputRedirect(const CommandPtr cmd) {
+    for (size_t i = 0; i < cmd->argc; i++) {
+        if (strcmp("<", cmd->argv[i]) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int isOutputRedirect(const CommandPtr cmd) {
+    for (size_t i = 0; i < cmd->argc; i++) {
+        if (strcmp(">", cmd->argv[i]) == 0) {
+            return 1;
+        } else if (strcmp(">>", cmd->argv[i]) == 0) {
+            return 2;
+        }
+    }
+    return 0;
+}
+
+int ridIO(CommandPtr cmd, char *str){
+    for (size_t i = 0; i < cmd->argc; i++) {
+        if (strcmp(str, cmd->argv[i]) == 0) {
+            if(i == cmd->argc - 1){
+                cmd->argc -= 1;
+                cmd->argv[i] = NULL;
+                return 0;
+            }
+
+            for(size_t j = i + 2; j < cmd->argc; j++, i++){
+                strcpy(cmd->argv[i], cmd->argv[j]);
+            }
+            cmd->argc -= 2;
+            cmd->argv[i] = NULL;
+            return 0;
+        }
+    }
+    return 0;
+}
+
+int ridInputRedirect(CommandPtr cmd){
+    ridIO(cmd, "<");
+}
+
+int ridOutputRedirect(CommandPtr cmd){
+    ridIO(cmd, ">");
+    ridIO(cmd, ">>");
+}

@@ -9,6 +9,8 @@
 /home/baislsl/c_c++/myShell/command.c
 wait.h
 -
+fcntl.h
+-
 command.h
 /home/baislsl/c_c++/myShell/command.h
 myshell.h
@@ -25,6 +27,8 @@ myshell.h
 /home/baislsl/c_c++/myShell/myshell.h
 
 /home/baislsl/c_c++/myShell/internal.c
+dirent.h
+-
 internal.h
 /home/baislsl/c_c++/myShell/internal.h
 
@@ -61,8 +65,6 @@ stdbool.h
 -
 stdio.h
 -
-utility.h
-/home/baislsl/c_c++/myShell/utility.h
 
 /home/baislsl/c_c++/myShell/parser.c
 memory.h
@@ -79,6 +81,8 @@ zconf.h
 -
 
 /home/baislsl/c_c++/myShell/utility.c
+fcntl.h
+-
 utility.h
 /home/baislsl/c_c++/myShell/utility.h
 parser.h
@@ -99,4 +103,6 @@ zconf.h
 -
 myshell.h
 /home/baislsl/c_c++/myShell/myshell.h
+command.h
+/home/baislsl/c_c++/myShell/command.h
 

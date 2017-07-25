@@ -9,8 +9,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "utility.h"
-
 #define MAXLINE 80
 #define MAXPATH 256
 #define MAXLENGTH 4096
