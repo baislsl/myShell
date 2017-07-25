@@ -27,6 +27,8 @@ int addPath(char *newPath);
 
 void err_sys(char *msg, int outFd);
 
+bool isEmpty(char *str, size_t strLength);
+
 ssize_t isPipe(char *cmd, size_t cmdLength);
 
 bool isBackground(char *cmd);

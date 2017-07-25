@@ -5,7 +5,6 @@
 #include <wait.h>
 #include <fcntl.h>
 #include "command.h"
-#include "myshell.h"
 #include "parser.h"
 #include "internal.h"
 
@@ -22,16 +21,10 @@
 */
 
 int setDirect(CommandPtr cmd) {
-    if (!cmd->inFlag) {
-        // close(cmd->inWritePipe);
-    }
-    cmd->inWritePipe = dup(STDIN_FILENO);
+    cmd->oldInFd = dup(STDIN_FILENO);
     dup2(cmd->inFd, STDIN_FILENO);
 
-    if (!cmd->outFlag) {
-        // close(cmd->outReadPipe);
-    }
-    cmd->outReadPipe = dup(STDOUT_FILENO);
+    cmd->oldOutFd = dup(STDOUT_FILENO);
     dup2(cmd->outFd, STDOUT_FILENO);
 }
 
@@ -39,36 +32,33 @@ int resetDirect(CommandPtr cmd) {
     if (cmd->inFd != STDIN_FILENO) {
         close(cmd->inFd);
     }
-    dup2(cmd->inWritePipe, STDIN_FILENO);
-    close(cmd->inWritePipe);
+    dup2(cmd->oldInFd, STDIN_FILENO);
+    close(cmd->oldInFd);
     if (cmd->outFd != STDOUT_FILENO) {
         close(cmd->outFd);
     }
-    dup2(cmd->outReadPipe, STDOUT_FILENO);
-    close(cmd->outReadPipe);
+    dup2(cmd->oldOutFd, STDOUT_FILENO);
+    close(cmd->oldOutFd);
 }
 
 
 int setInDirect(CommandPtr cmd, bool flag, int inFd, int inWritePipe) {
-    cmd->inFlag = flag;
     cmd->inFd = inFd;
     if (!flag) {
-        cmd->inWritePipe = inWritePipe;
+        cmd->oldInFd = inWritePipe;
     }
 }
 
 int setOutDirect(CommandPtr cmd, bool flag, int outFd, int outReadPipe) {
-    cmd->outFlag = flag;
     cmd->outFd = outFd;
     if (!flag) {
-        cmd->outReadPipe = outReadPipe;
+        cmd->oldOutFd = outReadPipe;
     }
 }
 
 int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength) {
     ptr->inFd = STDIN_FILENO;   // set default in
     ptr->outFd = STDOUT_FILENO; // set default out
-    ptr->inFlag = ptr->outFlag = false;
     char args_data[MAXLINE / 2 + 1][MAXLENGTH];
     char *args[MAXLINE / 2 + 1];
     for (int i = 0; i < MAXLINE / 2 + 1; i++) {
@@ -112,7 +102,7 @@ int runOuterCmd(CommandPtr cmd) {
 
 int runInternalCmd(CommandPtr cmd) {
     char *cmdName = commandName(cmd);
-    return execInner(cmdName, cmd->argv, cmd->argc);
+    return execInner(cmdName, (const char**)cmd->argv, cmd->argc);
 }
 
 int execCommand(CommandPtr cmd) {

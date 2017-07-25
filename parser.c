@@ -21,6 +21,7 @@ int escapeQuote(const char *str, size_t *i, size_t maxLength) {
     }
 }
 
+// never user this to spilt ' and "
 ssize_t split(char *str, size_t strLength, char *store[], size_t storeSize, Func *func) {
     size_t i = 0;
     size_t begin, end;

@@ -16,9 +16,8 @@ struct _Command {
     char *argv[256];
     int inFd;
     int outFd;
-    int inWritePipe;
-    int outReadPipe;
-    bool inFlag, outFlag;   // inflag true is in put not pipe
+    int oldInFd;
+    int oldOutFd;
 };
 
 int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength);

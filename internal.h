@@ -9,7 +9,8 @@
 #include <stdio.h>
 #include "utility.h"
 
-typedef int innerFunc(const char *args[], size_t n);
-int execInner(char *name, const char *args[], size_t argc);
+typedef int innerFunc(const char **argv, size_t n);
+
+int execInner(char *name, const char **argv, size_t argc);
 
 #endif //MYSHELL_INTERNAL_H

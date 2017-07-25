@@ -13,8 +13,6 @@ fcntl.h
 -
 command.h
 /home/baislsl/c_c++/myShell/command.h
-myshell.h
-/home/baislsl/c_c++/myShell/myshell.h
 parser.h
 /home/baislsl/c_c++/myShell/parser.h
 internal.h
@@ -47,14 +45,10 @@ unistd.h
 -
 memory.h
 -
-stdlib.h
--
 fcntl.h
 -
 internal.h
 /home/baislsl/c_c++/myShell/internal.h
-command.h
-/home/baislsl/c_c++/myShell/command.h
 parser.h
 /home/baislsl/c_c++/myShell/parser.h
 
