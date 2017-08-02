@@ -2,9 +2,39 @@
 #include <unistd.h>
 #include <memory.h>
 #include <fcntl.h>
+#include <bits/signum.h>
+#include <signal.h>
 #include "internal.h"
 #include "parser.h"
+#include "pid.h"
 
+int forePid = -1;
+
+void ExitSignal(int signal) {
+    fprintf(stdout, "fore pid : %d\n", forePid);
+    if (forePid != -1) {
+        kill(forePid, signal);
+    }else{
+        // raise(signal);
+    }
+}
+
+void sig_tstp(int signal){
+    fprintf(stdout, "call sig tstp\n");
+    ExitSignal(SIGSTOP);
+}
+
+void sig_quit(int signal) {
+    fprintf(stdout, "call quit\n");
+   // ExitSignal(signal);
+    exit(0);
+}
+
+void sig_int(int signal) {
+    puts("call int");
+    fprintf(stdout, "fore pid : %d\n", forePid);
+    ExitSignal(signal);
+}
 
 ssize_t readCommand(char *cmd) {
     if (fgets(cmd, MAXLINE, stdin) == NULL) {
@@ -15,7 +45,7 @@ ssize_t readCommand(char *cmd) {
 }
 
 void runCommand(char *cmd) {
-    if(isEmpty(cmd, strlen(cmd)))
+    if (isEmpty(cmd, strlen(cmd)))
         return;
     char spiltCmd[MAX_PIPE + 1][MAXLENGTH];
     char *tmpSplitCmd[MAX_PIPE + 1];
@@ -31,7 +61,8 @@ void runCommand(char *cmd) {
     Command command[cmdNumbers];
     int fdr, fdw;
     char tmpFile1[MAXLINE], tmpFile2[MAXLINE];
-    tmpnam(tmpFile1); tmpnam(tmpFile2);
+    tmpnam(tmpFile1);
+    tmpnam(tmpFile2);
     for (size_t i = 0; i < cmdNumbers; i++) {
         if (i % 2 == 0) {
             fdw = open(tmpFile1, O_CREAT | O_WRONLY | O_TRUNC);
@@ -83,9 +114,24 @@ void printInfo() {
     fflush(stdout);
 }
 
+// need
+void handleBackExit(int _pid) {
+//    pid_t pid = (pid_t)_pid;
+    pid_t pid = (pid_t) getpid();
+
+    int number = getPidNumber(pid);
+    fprintf(stdout, "[%d]:%d\n", number, pid);
+    removePid(pid);
+}
+
 void init() {
+    signal(SIGQUIT, sig_quit);
+    signal(SIGTSTP, sig_tstp);
+    signal(SIGINT, sig_int);
     setpath("/bin:/usr/bin");
     addPath(getPath());
+    // signal(SIGCHLD, handleBackExit);
+
 }
 
 int run(bool info) {
@@ -95,7 +141,7 @@ int run(bool info) {
     while (shouldRun) {
         if (info)
             printInfo();
-        if (readCommand(cmd) == -1){
+        if (readCommand(cmd) == -1) {
             shouldRun = 0;
             continue;
         }

@@ -7,6 +7,7 @@
 #include "command.h"
 #include "parser.h"
 #include "internal.h"
+#include "pid.h"
 
 
 /**
@@ -19,6 +20,19 @@
 * (3) if command included &, parent will invoke wait()
 *.....
 */
+
+int commandCopy(CommandPtr dest, CommandPtr src){
+    dest->argc = src->argc;
+    dest->outFd = src->outFd;
+    dest->inFd = src->inFd;
+    dest->oldInFd = src->oldInFd;
+    dest->oldOutFd = src->oldOutFd;
+    for(size_t i =0;i<src->argc;++i){
+        dest->argv[i] = (char*)malloc(strlen(src->argv[i]) + 1);
+        strcpy(dest->argv[i], src->argv[i]);
+    }
+
+}
 
 int setDirect(CommandPtr cmd) {
     cmd->oldInFd = dup(STDIN_FILENO);
@@ -80,40 +94,64 @@ char *commandName(CommandPtr cmd) {
     return cmd->argv[0];
 }
 
-int runOuterCmd(CommandPtr cmd) {
-    int status;
-    int pid = fork();
-    if (pid < 0) {
-        err_sys("fork error", STDOUT_FILENO);
-    } else if (pid == 0) {
-        if (cmd->argc < 0) {
-            err_sys("to many arguments", cmd->outFd);
-            exit(1);
-        } else {
-            execvp(cmd->argv[0], cmd->argv);
-        }
-    } else {
-        if (wait(&status) != pid) {
-            err_sys("wait error", STDOUT_FILENO);
-            exit(1);
-        }
-    }
+void handleBackExit2(int _pid) {
+    pid_t pid = (pid_t) getpid();
+    int number = getPidNumber(pid);
+    fprintf(stdout, "[%d]:%d\n", number, pid);
+    removePid(pid);
 }
+
+
+extern int forePid;
 
 int runInternalCmd(CommandPtr cmd) {
     char *cmdName = commandName(cmd);
-    return execInner(cmdName, (const char**)cmd->argv, cmd->argc);
+    return execInner(cmdName, (const char **) cmd->argv, cmd->argc);
 }
 
+// !!!!!!!!!!!!!!!!!!111
 int execCommand(CommandPtr cmd) {
+    int ret = 0;
     char *cmdName = commandName(cmd);
+    bool internal = isInternalCmd(cmdName, strlen(cmdName));
+    bool backgoround = isBackground(cmd);
+    testAll();
+    if (backgoround) {
+        ridBackgroundChar(cmd);
+    }
     setDirect(cmd);
-    if (isInternalCmd(cmdName, strlen(cmdName))) {
-        runInternalCmd(cmd);
+    if (internal & !backgoround) {
+        ret = runInternalCmd(cmd);
     } else {
-        runOuterCmd(cmd);
+        pid_t pid;
+        int status;
+        if ((pid = fork()) < 0) {
+            err_sys("error to create a new process", STDERR_FILENO);
+        } else if (pid == 0) { // child
+            if (internal) {
+                runInternalCmd(cmd);
+            } else {
+                execvp(cmd->argv[0], cmd->argv);
+            }
+        } else {  //parent
+            if (backgoround) {
+                addPid(pid, cmd, BACKGROUND);
+            } else {
+                forePid = pid;
+                fprintf(stdout, "set forepid to %d\n ", pid);
+                if (waitpid(pid, &status, WUNTRACED) != pid) {
+                    err_sys("wait pid error", STDERR_FILENO);
+                }
+                if(WIFSTOPPED(status)){
+                    addPid(pid, cmd, STOP);
+                }
+                fprintf(stdout, "reset forepid to -1\n ");
+                forePid = -1;
+            }
+        }
     }
     resetDirect(cmd);
+    return ret;
 }
 
 void freeCommand(CommandPtr cmd) {
@@ -121,7 +159,6 @@ void freeCommand(CommandPtr cmd) {
         free(cmd->argv[i]);
     }
 }
-
 
 int getInputRedirect(const CommandPtr cmd) {
     int fd = 0;
@@ -182,31 +219,63 @@ int isOutputRedirect(const CommandPtr cmd) {
     return 0;
 }
 
-int ridIO(CommandPtr cmd, char *str){
+int ridIO(CommandPtr cmd, char *str) {
     for (size_t i = 0; i < cmd->argc; i++) {
         if (strcmp(str, cmd->argv[i]) == 0) {
-            if(i == cmd->argc - 1){
+            free(cmd->argv[i]);
+            if (i == cmd->argc - 1) {
                 cmd->argc -= 1;
                 cmd->argv[i] = NULL;
                 return 0;
             }
 
-            for(size_t j = i + 2; j < cmd->argc; j++, i++){
-                strcpy(cmd->argv[i], cmd->argv[j]);
+            // = to set last NULL
+            for (size_t j = i + 2; j <= cmd->argc; j++, i++) {
+                cmd->argv[i] = cmd->argv[j];
             }
             cmd->argc -= 2;
-            cmd->argv[i] = NULL;
             return 0;
         }
     }
     return 0;
 }
 
-int ridInputRedirect(CommandPtr cmd){
+int ridInputRedirect(CommandPtr cmd) {
     ridIO(cmd, "<");
 }
 
-int ridOutputRedirect(CommandPtr cmd){
+int ridOutputRedirect(CommandPtr cmd) {
     ridIO(cmd, ">");
     ridIO(cmd, ">>");
+}
+
+void ridBackgroundChar(CommandPtr cmd) {
+    for (size_t i = 0; i < cmd->argc; i++) {
+        if (strcmp("&", cmd->argv[i]) == 0) {
+            free(cmd->argv[i]);
+            for (; i < cmd->argc; i++) {
+                cmd->argv[i] = cmd->argv[i + 1];
+            }
+            --cmd->argc;
+            return;
+        }
+    }
+}
+
+bool isBackground(const CommandPtr cmd) {
+    for (size_t i = 0; i < cmd->argc; i++) {
+        if (strcmp("&", cmd->argv[i]) == 0)
+            return true;
+    }
+    return false;
+}
+
+void printCommand(CommandPtr cmd) {
+    for (size_t i = 0; i < cmd->argc; i++) {
+        fputs(cmd->argv[i], stdout);
+        if (i != cmd->argc - 1)
+            fputc(' ', stdout);
+        else if(i != 0)
+            fputc('\n', stdout);
+    }
 }

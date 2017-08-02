@@ -6,6 +6,7 @@
 #include <time.h>
 #include <sys/stat.h>
 #include "internal.h"
+#include "pid.h"
 
 #define MSG_LENGTH 1024
 
@@ -94,7 +95,8 @@ int _environ(const char **argv, size_t argc) {
 }
 
 int _echo(const char **argv, size_t argc) {
-    --argc; ++argv;
+    --argc;
+    ++argv;
     while (argc > 0) {
         fputs(argv[0], stdout);
         argc--;
@@ -127,26 +129,81 @@ int _umask(const char **argv, size_t argc) {
 
 }
 
+int _jobs(const char **argv, size_t argc) {
+    showAllPid();
+}
+
+int _bg(const char **argv, size_t argc) {
+    if (argc == 1) {
+        ssize_t pidNumber = getLastPidNumber();
+        if(pidNumber >= 0)
+            makeBackground((size_t)pidNumber);
+    } else{
+        while(argc > 1){
+            --argc;
+            ++argv;
+            unsigned long pidNumber = strtoul(*argv, NULL, 10);
+            makeBackground(pidNumber);
+        }
+        return 0;
+    }
+}
+
+int _fg(const char **argv, size_t argc) {
+    if (argc == 1) {
+        ssize_t pidNumber = getLastPidNumber();
+        if(pidNumber >= 0)
+            makeBackground((size_t)pidNumber);    } else{
+        while(argc > 1){
+            --argc;
+            ++argv;
+            unsigned long pidNumber = strtoul(*argv, NULL, 10);
+            makeForeground(pidNumber);
+        }
+        return 0;
+    }
+}
+
+int _exec(const char **argv, size_t argc){
+
+    exit(0);
+}
+
+
+typedef int innerFunc(const char **argv, size_t n);
+
 struct tie {
     innerFunc *func;
     char *cmd;
 };
 typedef struct tie Tie;
+static Tie innerFuncList[] = {
+        {_cd,      "cd"},
+        {_pwd,     "pwd"},
+        {_clr,     "clr"},
+        {_dir,     "dir"},
+        {_environ, "environ"},
+        {_echo,    "echo"},
+        {_help,    "help"},
+        {_quit,    "quit"},
+        {_time,    "time"},
+        {_umask,   "umask"},
+        {_jobs,    "jobs"},
+        {_bg,      "bg"},
+        {_fg,      "fg"},
+        {_exec, "exec"}
+};
+
+bool isInternalCmd(char *name, size_t length) {
+    for (int i = 0; i < sizeof(innerFuncList) / sizeof(Tie); i++) {
+        if (strncmp(innerFuncList[i].cmd, name, length) == 0)
+            return true;
+    }
+    return false;
+}
 
 int execInner(char *name, const char **argv, size_t argc) {
-    static Tie innerFuncList[] = {
-            {_cd,      "cd"},
-            {_pwd,     "pwd"},
-            {_clr,     "clr"},
-            {_dir,     "dir"},
-            {_environ, "environ"},
-            {_echo,    "echo"},
-            {_help,    "help"},
-            {_quit,    "quit"},
-            {_time,    "time"},
-            {_umask,   "umask"}
-    };
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < sizeof(innerFuncList) / sizeof(Tie); i++) {
         Tie *icmd = innerFuncList + i;
         if (strcmp(icmd->cmd, name) == 0) {
             return (icmd->func)(argv, argc);

@@ -31,9 +31,6 @@ bool isEmpty(char *str, size_t strLength);
 
 ssize_t isPipe(char *cmd, size_t cmdLength);
 
-bool isBackground(char *cmd);
-
-bool isInternalCmd(char *cmd, size_t cmdLength);
 
 int isIoRedirect(char *cmd, size_t cmdLength);
 

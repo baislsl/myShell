@@ -20,6 +20,8 @@ struct _Command {
     int oldOutFd;
 };
 
+int commandCopy(CommandPtr src, CommandPtr dest);
+
 int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength);
 
 int execCommand(CommandPtr cmd);
@@ -42,5 +44,11 @@ int getInputRedirect(CommandPtr cmd);
 int ridInputRedirect(CommandPtr cmd);
 
 int ridOutputRedirect(CommandPtr cmd);
+
+void ridBackgroundChar(CommandPtr cmd);
+
+void printCommand(CommandPtr cmd);
+
+bool isBackground(CommandPtr cmd);
 
 #endif //MYSHELL_COMMAND_H

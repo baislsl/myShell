@@ -46,27 +46,6 @@ ssize_t isPipe(char *str, size_t strLength) {
 }
 
 
-bool isBackground(char *cmd) {
-
-}
-//: bg、 cd 、 continue、 echo 、 exec 、
-// exit 、fg 、jobs 、pwd 、set 、shift 、test 、time 、umask 、unset
-bool isInternalCmd(char *cmd, size_t cmdLength) {
-    static char *internalCmd[19] = {
-            "bg", "cd", "continus", "echo", "exec", "exit", "fg", "jobs", "pwd", "set", "test", "time",
-            "umask", "unset", "clr", "dir", "environ", "help", "quit"
-    };
-    char arg[MAXLENGTH];
-    size_t size = getFirstArg(cmd, cmdLength, arg);
-    for (int i = 0; i < 19; i++) {
-        if (strcmp(internalCmd[i], arg) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 int isIoRedirect(char *str, size_t strLength) {
     for (ssize_t i = 0; i < strLength; i++) {
         if (str[i] == '<' || str[i] == '>')
