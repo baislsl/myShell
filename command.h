@@ -6,7 +6,7 @@
 #define MYSHELL_COMMAND_H
 
 #include <glob.h>
-#include "myshell.h"
+#include <stdbool.h>
 
 typedef struct _Command Command;
 typedef struct _Command *CommandPtr;

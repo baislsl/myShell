@@ -2,20 +2,19 @@
 #include <unistd.h>
 #include <memory.h>
 #include <fcntl.h>
-#include <bits/signum.h>
 #include <signal.h>
+#include <stdlib.h>
 #include "internal.h"
 #include "parser.h"
-#include "pid.h"
-
-int forePid = -1;
+#include "forePid.h"
+#include "myshell.h"
+#include "utility.h"
 
 void ExitSignal(int signal) {
+    int forePid = getForePid();
     fprintf(stdout, "fore pid : %d\n", forePid);
     if (forePid != -1) {
         kill(forePid, signal);
-    }else{
-        // raise(signal);
     }
 }
 
@@ -26,102 +25,26 @@ void sig_tstp(int signal){
 
 void sig_quit(int signal) {
     fprintf(stdout, "call quit\n");
-   // ExitSignal(signal);
     exit(0);
 }
 
 void sig_int(int signal) {
+    int forePid = getForePid();
     puts("call int");
     fprintf(stdout, "fore pid : %d\n", forePid);
     ExitSignal(signal);
 }
 
 ssize_t readCommand(char *cmd) {
-    if (fgets(cmd, MAXLINE, stdin) == NULL) {
+    if (fgets(cmd, MAX_LINE, stdin) == NULL) {
         return -1;
-    } else {
-        return strlen(cmd);
     }
-}
-
-void runCommand(char *cmd) {
-    if (isEmpty(cmd, strlen(cmd)))
-        return;
-    char spiltCmd[MAX_PIPE + 1][MAXLENGTH];
-    char *tmpSplitCmd[MAX_PIPE + 1];
-    for (size_t i = 0; i < MAX_PIPE + 1; i++) {
-        tmpSplitCmd[i] = spiltCmd[i];
-    }
-    ssize_t cmdNumbers = pipeSplit(cmd, strlen(cmd), tmpSplitCmd, MAX_PIPE + 1);
-    int pipeFd[cmdNumbers - 1][2];
-    for (size_t i = 0; i < cmdNumbers - 1; i++) {
-        pipe(pipeFd[i]);
-    }
-
-    Command command[cmdNumbers];
-    int fdr, fdw;
-    char tmpFile1[MAXLINE], tmpFile2[MAXLINE];
-    tmpnam(tmpFile1);
-    tmpnam(tmpFile2);
-    for (size_t i = 0; i < cmdNumbers; i++) {
-        if (i % 2 == 0) {
-            fdw = open(tmpFile1, O_CREAT | O_WRONLY | O_TRUNC);
-            fdr = open(tmpFile2, O_CREAT | O_RDONLY);
-        } else {
-            fdw = open(tmpFile2, O_CREAT | O_WRONLY | O_TRUNC);
-            fdr = open(tmpFile1, O_CREAT | O_RDONLY);
-        }
-        int n = buildCmd(&command[i], spiltCmd[i], strlen(spiltCmd[i]));
-        if (n < 0) {
-            err_sys("build fail", STDOUT_FILENO);
-        }
-        if (i == 0) {
-            setInDirect(&command[i], true, STDIN_FILENO, 0);
-        } else {
-            //setInDirect(command + i, false, pipeFd[i - 1][0], pipeFd[i - 1][1]);
-            setInDirect(&command[i], true, fdr, 0);
-        }
-        if (i == cmdNumbers - 1) {
-            setOutDirect(&command[i], true, STDOUT_FILENO, 0);
-        } else {
-            // setOutDirect(command + i, false, pipeFd[i][1], pipeFd[i][0]);
-            setOutDirect(&command[i], true, fdw, 0);
-        }
-        if (isInputRedirect(&command[i])) {
-            int fd = getInputRedirect(&command[i]);
-            setInDirect(&command[i], true, fd, 0);
-            ridInputRedirect(&command[i]);
-        }
-        if (isOutputRedirect(&command[i])) {
-            int fd = getOutputRedirect(&command[i]);
-            setOutDirect(&command[i], true, fd, 0);
-            ridOutputRedirect(&command[i]);
-        }
-        execCommand(&command[i]);
-        close(fdw);
-        close(fdr);
-    }
-
-    for (size_t i = 0; i < cmdNumbers; i++) {
-        freeCommand(&command[i]);
-    }
-
-
+    return strlen(cmd);
 }
 
 void printInfo() {
-    printf("myshell:%s> ", getPath());
+    printf("\033[32;1mmyshell\033[37m:\033[34m%s> \033[0m", getPath());
     fflush(stdout);
-}
-
-// need
-void handleBackExit(int _pid) {
-//    pid_t pid = (pid_t)_pid;
-    pid_t pid = (pid_t) getpid();
-
-    int number = getPidNumber(pid);
-    fprintf(stdout, "[%d]:%d\n", number, pid);
-    removePid(pid);
 }
 
 void init() {
@@ -130,12 +53,10 @@ void init() {
     signal(SIGINT, sig_int);
     setpath("/bin:/usr/bin");
     addPath(getPath());
-    // signal(SIGCHLD, handleBackExit);
-
 }
 
 int run(bool info) {
-    char cmd[MAXLINE];
+    char cmd[MAX_LINE];
     int shouldRun = 1; /* flag to determine when to exit program */
     init();
     while (shouldRun) {
@@ -157,7 +78,8 @@ int main(int argc, char *argv[]) {
         for (int i = 1; i < argc; i++) {
             int fd = open(argv[i], O_RDONLY);
             if (fd == -1) {
-                fprintf(stderr, "Fail to open file : %s\n", argv[i]);
+                char msg[MAX_LENGTH];
+                perror("Error:");
                 continue;
             }
             dup2(fd, STDIN_FILENO);

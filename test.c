@@ -11,61 +11,20 @@
 #include "command.h"
 #include "parser.h"
 
-int clr(const char *args[], size_t n) {
-    static char output[] = "\033[1A\033[2J\033[H";
-    if (write(STDOUT_FILENO, output, strlen(output)) == -1)
-        return -1;
-    else
-        return 0;
-}
+#include <stdio.h>
 
-int main() {
+extern char** environ;
 
-    pid_t pid;
+int main(int argc, char* argv[])
+{
+    int i;
 
-
-    printf("foreground pgid is %d\n", tcgetpgrp(0));
-
-    if ((pid = fork()) == 0)
-
-        //if(fork() == 0)
-
+    for (i = 0; environ[i] != NULL; i++)
     {
-
-        printf("foreground pgid is %d\n", tcgetpgrp(0));
-
-        setpgid(0, getpid()); // 子进程新建了一个进程组，失去了控制终端，所以后面的tcsetpgrp会失败
-
-
-
-        // tcsetpgrp(0,getpid());
-
-        printf("After tcsetpgrp,the fore process group is %d\n", (int) tcgetpgrp(0));
-
-        sleep(5);
-
-        printf("I am child,process id is %d,process group id is %d\n", getpid(), getpgrp());
-
-        printf("foreground pgid is %d\n", tcgetpgrp(0));
-
-    } else {
-
-        sleep(1);
-
-        printf("foreground pgid is %d\n", tcgetpgrp(0));
-
-        tcsetpgrp(0, pid); // 父进程把控制终端让给子进程
-
-        printf("foreground pgid is %d\n", tcgetpgrp(0));
-
-        sleep(5);
-
-        printf("I am father,process id is %d,process group id is %d\n", getpid(), getpgrp());
-
+        printf("%s\n", environ[i]);
     }
 
     return 0;
-
 }
 
 void func1() {
@@ -136,7 +95,7 @@ void func1() {
 //}
 
 
-int runOuterCmd2(CommandPtr cmd) {
+/*int runOuterCmd2(CommandPtr cmd) {
     int status;
     pid_t pid;
     int gpid = tcgetpgrp(STDIN_FILENO), gpid2 = tcgetpgrp(STDOUT_FILENO);
@@ -248,4 +207,4 @@ int runOuterCmd(CommandPtr cmd) {
         //resetDirect(cmd);
         return 0;
     }
-}
+}*/

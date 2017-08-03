@@ -4,10 +4,15 @@
 
 #include <wait.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
 #include "command.h"
 #include "parser.h"
 #include "internal.h"
 #include "pid.h"
+#include "forePid.h"
+#include "myshell.h"
+#include "utility.h"
 
 
 /**
@@ -73,12 +78,12 @@ int setOutDirect(CommandPtr cmd, bool flag, int outFd, int outReadPipe) {
 int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength) {
     ptr->inFd = STDIN_FILENO;   // set default in
     ptr->outFd = STDOUT_FILENO; // set default out
-    char args_data[MAXLINE / 2 + 1][MAXLENGTH];
-    char *args[MAXLINE / 2 + 1];
-    for (int i = 0; i < MAXLINE / 2 + 1; i++) {
+    char args_data[MAX_LINE / 2 + 1][MAX_LENGTH];
+    char *args[MAX_LINE / 2 + 1];
+    for (int i = 0; i < MAX_LINE / 2 + 1; i++) {
         args[i] = args_data[i];
     }
-    ssize_t n = spaceSplit(cmd, cmdLength, args, MAXLINE / 2 + 1);
+    ssize_t n = spaceSplit(cmd, cmdLength, args, MAX_LINE / 2 + 1);
     if (n < 0)
         return -1;
     ptr->argc = (size_t) n;
@@ -94,28 +99,17 @@ char *commandName(CommandPtr cmd) {
     return cmd->argv[0];
 }
 
-void handleBackExit2(int _pid) {
-    pid_t pid = (pid_t) getpid();
-    int number = getPidNumber(pid);
-    fprintf(stdout, "[%d]:%d\n", number, pid);
-    removePid(pid);
-}
-
-
-extern int forePid;
-
 int runInternalCmd(CommandPtr cmd) {
     char *cmdName = commandName(cmd);
     return execInner(cmdName, (const char **) cmd->argv, cmd->argc);
 }
-
 // !!!!!!!!!!!!!!!!!!111
 int execCommand(CommandPtr cmd) {
     int ret = 0;
     char *cmdName = commandName(cmd);
     bool internal = isInternalCmd(cmdName, strlen(cmdName));
     bool backgoround = isBackground(cmd);
-    testAll();
+    checkProcess();
     if (backgoround) {
         ridBackgroundChar(cmd);
     }
@@ -124,9 +118,8 @@ int execCommand(CommandPtr cmd) {
         ret = runInternalCmd(cmd);
     } else {
         pid_t pid;
-        int status;
         if ((pid = fork()) < 0) {
-            err_sys("error to create a new process", STDERR_FILENO);
+            err_sys("error to create a new process");
         } else if (pid == 0) { // child
             if (internal) {
                 runInternalCmd(cmd);
@@ -137,16 +130,10 @@ int execCommand(CommandPtr cmd) {
             if (backgoround) {
                 addPid(pid, cmd, BACKGROUND);
             } else {
-                forePid = pid;
-                fprintf(stdout, "set forepid to %d\n ", pid);
-                if (waitpid(pid, &status, WUNTRACED) != pid) {
-                    err_sys("wait pid error", STDERR_FILENO);
-                }
+                int status = foreGroundWait(pid);
                 if(WIFSTOPPED(status)){
                     addPid(pid, cmd, STOP);
                 }
-                fprintf(stdout, "reset forepid to -1\n ");
-                forePid = -1;
             }
         }
     }
@@ -183,7 +170,7 @@ int getOutputRedirect(const CommandPtr cmd) {
         if (strcmp(">", cmd->argv[i]) == 0) {
             if (i == cmd->argc - 1)  // no direct file given
                 return 0;
-            fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_TRUNC);
+            fd = open(cmd->argv[i + 1], O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
             break;
         }
         if (strcmp(">>", cmd->argv[i]) == 0) {
@@ -275,7 +262,7 @@ void printCommand(CommandPtr cmd) {
         fputs(cmd->argv[i], stdout);
         if (i != cmd->argc - 1)
             fputc(' ', stdout);
-        else if(i != 0)
+        else
             fputc('\n', stdout);
     }
 }

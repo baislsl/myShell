@@ -4,12 +4,12 @@
 #include <wait.h>
 #include <stdlib.h>
 #include "pid.h"
-
+#include "utility.h"
+#include "forePid.h"
 
 
 pNode plist[MAX_PID];
 size_t count;
-extern int forePid;
 
 ssize_t findPidNodeWithPidNumber(size_t number) {
     for (size_t i = 0; i < count; i++) {
@@ -55,8 +55,6 @@ void showAllPid() {
 
 int removePidList(size_t index) {
     plist[index].condition = FINISH;
-//    freeCommand(plist[index].cmd);
-//    free(plist[index].cmd);
 }
 
 int makeBackground(size_t pidNumber) {
@@ -69,7 +67,6 @@ int makeBackground(size_t pidNumber) {
 }
 
 int makeForeground(size_t pidNumber) {
-    int status;
     ssize_t i = findPidNodeWithPidNumber(pidNumber);
     if (i < 0)
         return 1;
@@ -77,12 +74,10 @@ int makeForeground(size_t pidNumber) {
     plist[i].condition = CONTINUE;
     printPidNode(&plist[i]);
     kill(plist[i].pid, SIGCONT);
-    forePid = plist[i].pid;
-    waitpid(plist[i].pid, &status, WUNTRACED);
-    if (!WIFSTOPPED(status)) {
-        removePidList((size_t) i);
+    int status = foreGroundWait(plist[i].pid);
+    if (WIFSTOPPED(status)) {
+        plist[i].condition = STOP;
     }
-    forePid = -1;
 }
 
 int addPid(pid_t pid, CommandPtr cmd, enum Condition condition) {
@@ -109,7 +104,7 @@ int removePid(pid_t pid) {
 
 }
 
-int testAll() {
+int checkProcess() {
     int status;
     for (int i = 0; i < count; i++) {
         if (plist[i].condition == FINISH) continue;
@@ -117,11 +112,11 @@ int testAll() {
         if (r != 0) {
             plist[i].condition = FINISH;
             if (WIFEXITED(status)) {
-                fputs("normal exit", stdout);
+                fputs("normal exit:", stdout);
                 printPidNode(&plist[i]);
                 removePid(i);
             } else if (WIFSIGNALED(status)) {
-                fputs("abnormal exit", stdout);
+                err_sys("abnormal exit");
                 printPidNode(&plist[i]);
                 removePid(plist[i].pid);
             }
@@ -132,7 +127,7 @@ int testAll() {
 ssize_t getLastPidNumber() {
     for (size_t i = count - 1; i >= 0; i--) {
         if (plist[i].condition != FINISH) {
-            return i;
+            return plist[i].number;
         }
     }
     return -1;

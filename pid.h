@@ -34,7 +34,8 @@ int getPidNumber(pid_t pid);
 
 int removePid(pid_t pid);
 
-int testAll();
+int checkProcess();
 
 ssize_t getLastPidNumber();
+
 #endif //MYSHELL_PID_H
