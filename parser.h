@@ -16,11 +16,7 @@ int findCharacter(char *str, size_t strLength, size_t index[], size_t indexSize,
 
 bool isSpace(char cc);
 
-ssize_t ridFind(char *str, size_t strLength, char *store[], size_t storeSize, Func *func);
-
 ssize_t spaceSplit(char *str, size_t strLength, char *store[], size_t storeSize);
-
-size_t getFirstArg(char *str, size_t strLength, char *dest);
 
 /**
  * @return the number of command after divide by '|'

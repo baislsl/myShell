@@ -13,11 +13,7 @@
 #include <zconf.h>
 #include "myshell.h"
 
-static char *getPath() {
-    static char path[MAX_PATH];
-    getcwd(path, MAX_PATH);
-    return path;
-}
+char *getPath();
 
 int setpath(char *newPath);
 
@@ -27,11 +23,10 @@ void err_sys(char *msg);
 
 bool isEmpty(char *str, size_t strLength);
 
-ssize_t isPipe(char *cmd, size_t cmdLength);
-
 void runCommand(char *cmd);
 
-int isIoRedirect(char *cmd, size_t cmdLength);
+ssize_t readCommand(char *cmd);
 
+void printInfo();
 
 #endif //MYSHELL_UTILITY_H

@@ -12,7 +12,6 @@
 int execInner(char *name, const char **argv, size_t argc);
 bool isInternalCmd(char *name, size_t length);
 
-
 typedef int innerFunc(const char **argv, size_t n);
 
 struct tie {

@@ -9,56 +9,40 @@
 #include "forePid.h"
 #include "myshell.h"
 #include "utility.h"
+#include "param.h"
+#include "pid.h"
 
 void ExitSignal(int signal) {
     int forePid = getForePid();
-    fprintf(stdout, "fore pid : %d\n", forePid);
     if (forePid != -1) {
         kill(forePid, signal);
     }
 }
 
 void sig_tstp(int signal){
-    fprintf(stdout, "call sig tstp\n");
     ExitSignal(SIGSTOP);
 }
 
 void sig_quit(int signal) {
-    fprintf(stdout, "call quit\n");
-    exit(0);
-}
-
-void sig_int(int signal) {
-    int forePid = getForePid();
-    puts("call int");
-    fprintf(stdout, "fore pid : %d\n", forePid);
     ExitSignal(signal);
 }
 
-ssize_t readCommand(char *cmd) {
-    if (fgets(cmd, MAX_LINE, stdin) == NULL) {
-        return -1;
-    }
-    return strlen(cmd);
+void sig_int(int signal) {
+    ExitSignal(signal);
 }
 
-void printInfo() {
-    printf("\033[32;1mmyshell\033[37m:\033[34m%s> \033[0m", getPath());
-    fflush(stdout);
-}
-
-void init() {
+void init(int argc, char *argv[]) {
     signal(SIGQUIT, sig_quit);
     signal(SIGTSTP, sig_tstp);
     signal(SIGINT, sig_int);
     setpath("/bin:/usr/bin");
     addPath(getPath());
+    paramInit(argc, argv);
 }
 
 int run(bool info) {
     char cmd[MAX_LINE];
     int shouldRun = 1; /* flag to determine when to exit program */
-    init();
     while (shouldRun) {
         if (info)
             printInfo();
@@ -73,6 +57,7 @@ int run(bool info) {
 }
 
 int main(int argc, char *argv[]) {
+    init(argc, argv);
     if (argc >= 2) {
         int oldStdin = dup(STDIN_FILENO);
         for (int i = 1; i < argc; i++) {

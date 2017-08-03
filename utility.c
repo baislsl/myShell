@@ -4,9 +4,15 @@
 
 #include <fcntl.h>
 #include "utility.h"
-#include "parser.h"
 #include "command.h"
+#include "param.h"
+#include "parser.h"
 
+char *getPath() {
+    static char path[MAX_PATH];
+    getcwd(path, MAX_PATH);
+    return path;
+}
 
 int setpath(char *newPath) {
     setenv("PATH", newPath, 1);
@@ -58,13 +64,11 @@ void runCommand(char *cmd) {
         if (i == 0) {
             setInDirect(&command[i], true, STDIN_FILENO, 0);
         } else {
-            //setInDirect(command + i, false, pipeFd[i - 1][0], pipeFd[i - 1][1]);
             setInDirect(&command[i], true, fdr, 0);
         }
         if (i == cmdNumbers - 1) {
             setOutDirect(&command[i], true, STDOUT_FILENO, 0);
         } else {
-            // setOutDirect(command + i, false, pipeFd[i][1], pipeFd[i][0]);
             setOutDirect(&command[i], true, fdw, 0);
         }
         if (isInputRedirect(&command[i])) {
@@ -77,7 +81,8 @@ void runCommand(char *cmd) {
             setOutDirect(&command[i], true, fd, 0);
             ridOutputRedirect(&command[i]);
         }
-        execCommand(&command[i]);
+        int ret = execCommand(&command[i]);
+        setExitState(ret);
         close(fdw);
         close(fdr);
     }
@@ -98,35 +103,14 @@ bool isEmpty(char *str, size_t strLength) {
     return true;
 }
 
-// still a bug version
-ssize_t isPipe(char *str, size_t strLength) {
-    if (isEmpty(str, strLength)) return -1;
-    for (ssize_t i = 0; i < strLength; i++) {
-        if (str[i] == '|')
-            return i;
+ssize_t readCommand(char *cmd) {
+    if (fgets(cmd, MAX_LINE, stdin) == NULL) {
+        return -1;
     }
-    return strLength;
+    return strlen(cmd);
 }
 
-
-int isIoRedirect(char *str, size_t strLength) {
-    for (ssize_t i = 0; i < strLength; i++) {
-        if (str[i] == '<' || str[i] == '>')
-            return i;
-    }
-    return -1;
-}
-
-
-void utilTest() {
-    // char *a = "while return     gg, \" sh\" ,kk";
-    char *a = "pwd";
-    char *store[10];
-    for (int i = 0; i < 10; i++) {
-        store[i] = (char *) malloc(10);
-    }
-    ssize_t n = spaceSplit(a, strlen(a), store, 10);
-    for (int i = 0; i < n; i++) {
-        printf("%s--\n", store[i]);
-    }
+void printInfo() {
+    printf("\033[32;1mmyshell\033[37m:\033[34m%s> \033[0m", getPath());
+    fflush(stdout);
 }

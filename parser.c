@@ -6,21 +6,6 @@
 #include "parser.h"
 
 
-// not finished
-int escapeQuote(const char *str, size_t *i, size_t maxLength) {
-    if (str[*i] == '\'' || str[*i] == '\"') {
-        char cc = str[*i];
-        ++i;
-        while (*i < maxLength && str[*i] != cc) {
-            *i = *i + 1;
-        }
-        if (*i == maxLength)  // error for not enclose quote
-            return -1;
-    } else {
-        *i = *i + 1;
-    }
-}
-
 // never user this to spilt ' and "
 ssize_t split(char *str, size_t strLength, char *store[], size_t storeSize, Func *func) {
     size_t i = 0;
@@ -116,21 +101,9 @@ ssize_t pipeSplit(char *str, size_t strLength, char *store[], size_t storeSize){
     return split(str, strLength, store, storeSize, isPipeCharacter);
 }
 
-ssize_t getAllPipeIndex(char *cmd, size_t cmdLength, int index[], size_t maxIndex){
-    return findCharacter(cmd, cmdLength, (size_t*)index, maxIndex, isPipeCharacter);
-}
 
 ssize_t spaceSplit(char *str, size_t strLength, char *store[], size_t storeSize) {
     // return ridFind(str, strLength, store, storeSize, isSpace);
     return split(str, strLength, store, storeSize, isSpace);
 }
 
-size_t getFirstArg(char *str, size_t strLength, char *dest) {
-    size_t begin = 0, end;
-    while (str[begin] <= ' ') ++begin;
-    end = begin;
-    while (str[end] > ' ') ++end;
-    strncpy(dest, str + begin, end - begin);
-    dest[end - begin] = 0;
-    return end - begin;
-}
