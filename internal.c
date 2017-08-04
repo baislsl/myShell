@@ -13,13 +13,7 @@
 #include "utility.h"
 #include "param.h"
 
-#define MSG_LENGTH 1024
-
 int _pwd(const char **argv, size_t argc) {
-    if (argc != 1) {
-        err_sys("gg pwd\n");
-        return -1;
-    }
     char *path = getPath();
     write(STDOUT_FILENO, path, strlen(path));
     write(STDOUT_FILENO, "\n", 2);
@@ -30,10 +24,6 @@ int _cd(const char **argv, size_t argc) {
     if (argc == 1) {
         return chdir(getenv("HOME"));
     }
-    if (argc != 2) {
-        err_sys("argument for cd must be 2\n");
-        return -1;
-    }
     if (chdir(argv[1]) < 0) {
         err_sys("No such path\n");
         _pwd(NULL, 1);
@@ -42,7 +32,6 @@ int _cd(const char **argv, size_t argc) {
     return 0;
 
 }
-
 
 int _time(const char **argv, size_t argc) {
     time_t tp = time(NULL);
@@ -58,15 +47,17 @@ int _clr(const char **argv, size_t argc) {
         return 0;
 }
 
+// list the file under path to stdout
 int dirPath(const char *path) {
     DIR *dir;
-    if ((dir = opendir(path)) == NULL) {
-        char msg[MSG_LENGTH];
+    if ((dir = opendir(path)) == NULL) { // open directory
+        char msg[PATH_MAX];
         sprintf(msg, "Can not open directory : %s\n", path);
         err_sys(msg);
         return -1;
     }
     struct dirent *file;
+    // scan for the file in directory
     while ((file = readdir(dir)) != NULL) {
         write(STDOUT_FILENO, file->d_name, strlen(file->d_name));
         write(STDOUT_FILENO, " ", 1);
@@ -74,16 +65,11 @@ int dirPath(const char *path) {
     write(STDOUT_FILENO, "\n", 1);
 }
 
-/**
- * list arg path
- * if no, list current path
- * do not support "-x" yet
-  * */
 int _dir(const char **argv, size_t argc) {
     if (argc == 1) { // list current path
         return dirPath(getPath());
     }
-    char info[MSG_LENGTH];
+    char info[PATH_MAX];
     for (int i = 1; i < argc; i++) {
         if (argc != 2) {
             sprintf(info, "%s:\n", argv[i]);
@@ -93,33 +79,38 @@ int _dir(const char **argv, size_t argc) {
     }
 }
 
-void translate(const char *argv, char *dest) {
-    if (*argv == '$') {
-        if (strlen(argv) == 2) {
-            if (argv[1] == '?') {
+/**
+ * handle input string of $?, $#, $*, $@, $1, $2, ... , $PATH, $HOME ...
+ * if the argv do not contain $XXX, directly copy to dest
+ * else analysis the character after '$'
+ * */
+void translate(const char *src, char *dest) {
+    if (*src == '$') {
+        if (strlen(src) == 2) {
+            if (src[1] == '?') {                            // $?
                 sprintf(dest, "%d", getExitState());
-            } else if (argv[1] >= '0' && argv[1] <= '9') {
-                strcpy(dest, param((size_t) (argv[1] - '0')));
-            } else if (argv[1] == '@' || argv[1] == '*') {
+            } else if (src[1] >= '0' && src[1] <= '9') {    // $1, $2 ... $9
+                strcpy(dest, param((size_t) (src[1] - '0')));
+            } else if (src[1] == '@' || src[1] == '*') {    // $@, $*
                 printAllParam(dest);
-            }else if(argv[1] == '#'){
+            } else if (src[1] == '#') {                     // $#
                 sprintf(dest, "%d", getArgc());
-            } else {
-                char *env = getenv(argv + 1);
+            } else {                                        // $xxx
+                char *env = getenv(src + 1);
                 if (env == NULL)
                     dest[0] = 0;
                 else
-                    strcpy(dest, getenv(argv + 1));
+                    strcpy(dest, getenv(src + 1));
             }
         } else {
-            char *env = getenv(argv + 1);
+            char *env = getenv(src + 1);
             if (env == NULL)
                 dest[0] = 0;
             else
-                strcpy(dest, getenv(argv + 1));
+                strcpy(dest, getenv(src + 1));
         }
     } else {
-        strcpy(dest, argv);
+        strcpy(dest, src);
     }
 }
 
@@ -159,8 +150,8 @@ int _help(const char **argv, size_t argc) {
 }
 
 int _quit(const char **argv, size_t argc) {
-    if(argc > 1){
-        exit((int)strtoul(argv[1], NULL, 10));
+    if (argc > 1) {
+        exit((int) strtoul(argv[1], NULL, 10));
     }
     exit(getExitState());
 }
@@ -185,6 +176,13 @@ int _jobs(const char **argv, size_t argc) {
 
 typedef int bgFgFunc(size_t);
 
+/**
+ * handle command fg and bg
+ *
+ * @param func the function that put a process in foreground or background
+ *      makeBackground when called by bg
+ *      makeForeground when called by fg
+ * */
 int bgAndFg(const char **argv, size_t argc, bgFgFunc func) {
     if (argc == 1) {
         ssize_t pidNumber = getLastPidNumber();
@@ -196,7 +194,7 @@ int bgAndFg(const char **argv, size_t argc, bgFgFunc func) {
             --argc;
             ++argv;
             unsigned long pidNumber = strtoul(*argv, NULL, 10);
-            if(func(pidNumber) < 0)
+            if (func(pidNumber) < 0)
                 return -1;
         }
         return 0;
@@ -223,17 +221,10 @@ int _exec(const char **argv, size_t argc) {
     exit(0);
 }
 
-// global environ definition
 /**
- * The variable environ points to an array of pointers to strings called
-       the "environment".  The last pointer in this array has the value
-       NULL.  (This variable must be declared in the user program, but is
-       declared in the header file <unistd.h> if the _GNU_SOURCE feature
-       test macro is defined.)  This array of strings is made available to
-       the process by the exec(3) call that started the process.  When a
-       child process is created via fork(2), it inherits a copy of its
-       parent's environment.
-
+ * Variable environ is declared in unistd.h
+ * It points to an array of pointers to strings of environment parameters,
+ * and the last pointer in environ is NULL.
  * */
 extern char **environ;
 
@@ -255,20 +246,17 @@ int _unset(const char **argv, size_t argc) {
     return ret;
 }
 
-
 int _export(const char **argv, size_t argc) {
-    /**
-     * 这里一定要将 environment 定义为static变量,
-     * 因为执行putenv栈的内存会发生改变,
-     * 如果没有static关键词, 会发生错误
-     * */
-    static char environment[MAX_LENGTH];
     int ret = 0;
     do {
         ++argv;
         --argc;
+        // must malloc environment in stack and do not free it
+        // putenv only add environment to global array environ
+        char *environment = (char *) malloc(strlen(*argv) * sizeof(char));
         strcpy(environment, *argv);
         if (putenv(environment) != 0) {
+            free(environment);
             ret = -1;
         }
     } while (argc > 1);
@@ -450,6 +438,15 @@ int __exit(const char **argv, size_t argc) {
     return _quit(argv, argc);
 }
 
+/**
+ * this variable store all the internal command name
+ * and their according executing function
+ *
+ * each internal command, its executing function is
+ * defined as "int _commandName(const char **argv, size_t argc)"
+ * note that _exit has been defined in unistd.h, the executing function of
+ * exit is named "__exit"
+ * */
 static internalFuncTie internalFuncList[] = {
         {_cd,       "cd"},
         {_pwd,      "pwd"},
@@ -471,9 +468,10 @@ static internalFuncTie internalFuncList[] = {
         {_continue, "continue"},
         {_shift,    "shift"},
         {_test,     "test"},
-        {__exit,    "exit"}    // _exit 在unistd.h头文件中定义过, 这里避免重命采用__exit
+        {__exit,    "exit"}
 };
 
+// judge whether a given command name is a internal command
 bool isInternalCmd(char *name, size_t length) {
     for (int i = 0; i < sizeof(internalFuncList) / sizeof(internalFuncTie); i++) {
         if (strncmp(internalFuncList[i].cmd, name, length) == 0)
@@ -482,10 +480,16 @@ bool isInternalCmd(char *name, size_t length) {
     return false;
 }
 
-int execInner(char *name, const char **argv, size_t argc) {
+/**
+ * run internal command
+ *
+ * @return return -1 if the command is not a internal command
+ * else return the result of the internal command
+ * */
+int execInternal(const char **argv, size_t argc) {
     for (int i = 0; i < sizeof(internalFuncList) / sizeof(internalFuncTie); i++) {
         internalFuncTie *icmd = internalFuncList + i;
-        if (strcmp(icmd->cmd, name) == 0) {
+        if (strcmp(icmd->cmd, argv[0]) == 0) {
             return (icmd->func)(argv, argc);
         }
     }

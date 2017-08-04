@@ -6,12 +6,22 @@
 #include "parser.h"
 
 
-// never user this to spilt ' and "
+/**
+ * split the str by character that satisfied func
+ * and store the splitted strings in store
+ * This function can escape character in "" and ''
+ * and must not use this to split character ' and "
+ *
+ * @return return the number of splitted string,
+ * return -1 if the string contain open quote
+ * return -2 if the size if bigger than storeSize
+ * */
 ssize_t split(char *str, size_t strLength, char *store[], size_t storeSize, Func *func) {
     size_t i = 0;
     size_t begin, end;
     size_t storeIndex = 0;
     while (i < strLength) {
+        // rid all the continuous character satisfied func
         while (i < strLength && func(str[i])) {
             if (str[i] == '\'' || str[i] == '\"') {
                 char cc = str[i];
@@ -23,6 +33,7 @@ ssize_t split(char *str, size_t strLength, char *store[], size_t storeSize, Func
                 ++i;
             }
         }
+        // find all the continuous character don't satisfied func
         begin = i;
         while (i < strLength && !func(str[i])) {
             if (str[i] == '\'' || str[i] == '\"') {
@@ -36,9 +47,11 @@ ssize_t split(char *str, size_t strLength, char *store[], size_t storeSize, Func
             }
         }
         end = i;
+        // store one splitted string to store[]
         if (storeIndex == storeSize) {
-            return -2;
-        } else if (begin != end) {
+            return -2;              // too big splitted number
+        }
+        if (end != begin) {
             strncpy(store[storeIndex], str + begin, end - begin);
             store[storeIndex++][end - begin] = 0;
         }
@@ -46,6 +59,13 @@ ssize_t split(char *str, size_t strLength, char *store[], size_t storeSize, Func
     return storeIndex;
 }
 
+/**
+ * find all the character in str that satisfied func
+ * and store their index in array index[]
+ * This function can escape character in "" and ''
+ * and must not use this to find character ' and "
+ * @return return the number of satisfied character
+ * */
 int findCharacter(char *str, size_t strLength, size_t index[], size_t indexSize, Func *func) {
     bool singleQuote = false, doubleQuote = false;
     size_t k = 0; // the index of index[]
@@ -73,37 +93,29 @@ int findCharacter(char *str, size_t strLength, size_t index[], size_t indexSize,
     return (int) k;
 }
 
+
+// judge where cc is space, tab ...
 bool isSpace(char cc) {
     return cc <= ' ';
 }
 
-
-ssize_t ridFind(char *str, size_t strLength, char *store[], size_t storeSize, Func *func) {
-    size_t index[storeSize];
-    int size;
-    if ((size = findCharacter(str, strLength, index, storeSize, func)) < 0) {
-        return -1;
-    }
-    for (size_t i = 0; i <= size; i++) {
-        size_t from = i == 0 ? 0 : index[i - 1] + 1;
-        size_t to = (i == size) ? strLength : index[i];
-        memcpy(store[i], str + from, to - from);
-        store[i][to - from] = 0;
-    }
-    return size + 1;
-}
-
-bool isPipeCharacter(char cc){
+bool isPipeCharacter(char cc) {
     return cc == '|';
 }
 
-ssize_t pipeSplit(char *str, size_t strLength, char *store[], size_t storeSize){
+/**
+ * split the given str by '|'
+ * @return the number of command after divide by '|'
+ * */
+ssize_t pipeSplit(char *str, size_t strLength, char *store[], size_t storeSize) {
     return split(str, strLength, store, storeSize, isPipeCharacter);
 }
 
-
+/**
+ * split the given str by space, tab...
+ * @return the number of command after divide by space, tab...
+ * */
 ssize_t spaceSplit(char *str, size_t strLength, char *store[], size_t storeSize) {
-    // return ridFind(str, strLength, store, storeSize, isSpace);
     return split(str, strLength, store, storeSize, isSpace);
 }
 

@@ -14,32 +14,22 @@
 #include "myshell.h"
 #include "utility.h"
 
-
-/**
-* After reading user input, the steps are:
-*内部命令:
-*.....
-*外部命令:
-* (1) fork a child process using fork()
-* (2) the child process will invoke execvp()
-* (3) if command included &, parent will invoke wait()
-*.....
-*/
-
-int commandCopy(CommandPtr dest, CommandPtr src){
+// copy a command
+void commandCopy(CommandPtr dest, CommandPtr src) {
     dest->argc = src->argc;
     dest->outFd = src->outFd;
     dest->inFd = src->inFd;
     dest->oldInFd = src->oldInFd;
     dest->oldOutFd = src->oldOutFd;
-    for(size_t i =0;i<src->argc;++i){
-        dest->argv[i] = (char*)malloc(strlen(src->argv[i]) + 1);
+    for (size_t i = 0; i < src->argc; ++i) {
+        dest->argv[i] = (char *) malloc(strlen(src->argv[i]) + 1);
         strcpy(dest->argv[i], src->argv[i]);
     }
 
 }
 
-int setDirect(CommandPtr cmd) {
+// before a command executes, use dup2 to redirect the input and output
+void setDirect(CommandPtr cmd) {
     cmd->oldInFd = dup(STDIN_FILENO);
     dup2(cmd->inFd, STDIN_FILENO);
 
@@ -47,7 +37,8 @@ int setDirect(CommandPtr cmd) {
     dup2(cmd->outFd, STDOUT_FILENO);
 }
 
-int resetDirect(CommandPtr cmd) {
+// after a command was executed, use dup2 to redirect the input and output
+void resetDirect(CommandPtr cmd) {
     if (cmd->inFd != STDIN_FILENO) {
         close(cmd->inFd);
     }
@@ -60,21 +51,22 @@ int resetDirect(CommandPtr cmd) {
     close(cmd->oldOutFd);
 }
 
-
-int setInDirect(CommandPtr cmd, bool flag, int inFd, int inWritePipe) {
+// set input file descriptor of the command
+void setInDirect(CommandPtr cmd, int inFd) {
     cmd->inFd = inFd;
-    if (!flag) {
-        cmd->oldInFd = inWritePipe;
-    }
 }
 
-int setOutDirect(CommandPtr cmd, bool flag, int outFd, int outReadPipe) {
+// set output file descriptor of the command
+void setOutDirect(CommandPtr cmd, int outFd) {
     cmd->outFd = outFd;
-    if (!flag) {
-        cmd->oldOutFd = outReadPipe;
-    }
 }
 
+/**
+ * build a command from a string
+ * the string must not contain pipe '|', but can contain redirect (>, <, >>),
+ *
+ * @return return 0 if build successfully, return -1 if fail
+ * */
 int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength) {
     ptr->inFd = STDIN_FILENO;   // set default in
     ptr->outFd = STDOUT_FILENO; // set default out
@@ -83,6 +75,8 @@ int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength) {
     for (int i = 0; i < MAX_LINE / 2 + 1; i++) {
         args[i] = args_data[i];
     }
+
+    // split the string by blank character
     ssize_t n = spaceSplit(cmd, cmdLength, args, MAX_LINE / 2 + 1);
     if (n < 0)
         return -1;
@@ -91,47 +85,62 @@ int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength) {
         ptr->argv[i] = (char *) malloc(strlen(args[i]) + 1);
         strcpy(ptr->argv[i], args[i]);
     }
-    ptr->argv[ptr->argc] = NULL;    // 将最后一个参数后的参数指针设为NULL, 防止执行外部命令时误读入多余的参数
-    return 1;
+
+    // set last argv to NULL, mark as the end of the argument
+    // this is necessary when we use execvp to conduct the command
+    ptr->argv[ptr->argc] = NULL;
+    return 0;
 }
 
+// get the command name of a command
 char *commandName(CommandPtr cmd) {
     return cmd->argv[0];
 }
 
 int runInternalCmd(CommandPtr cmd) {
-    char *cmdName = commandName(cmd);
-    return execInner(cmdName, (const char **) cmd->argv, cmd->argc);
+    return execInternal((const char **) cmd->argv, cmd->argc);
 }
-// !!!!!!!!!!!!!!!!!!111
+
+int runOuterCmd(CommandPtr cmd) {
+    execvp(cmd->argv[0], cmd->argv);
+}
+
 int execCommand(CommandPtr cmd) {
     int ret = 0;
     char *cmdName = commandName(cmd);
     bool internal = isInternalCmd(cmdName, strlen(cmdName));
-    bool backgoround = isBackground(cmd);
+    bool background = isBackground(cmd);
+
+    // before each the execution of each command,
+    // check the condition of each running process
     checkProcess();
-    if (backgoround) {
+
+    if (background) {   // rib '&' in command
         ridBackgroundChar(cmd);
     }
     setDirect(cmd);
-    if (internal & !backgoround) {
+    if (internal & !background) {   // inner, foreground
         ret = runInternalCmd(cmd);
     } else {
         pid_t pid;
         if ((pid = fork()) < 0) {
             err_sys("error to create a new process");
-        } else if (pid == 0) { // child
-            if (internal) {
+        } else if (pid == 0) {  // child
+            if (internal) {         // inner, background
                 runInternalCmd(cmd);
-            } else {
-                execvp(cmd->argv[0], cmd->argv);
+            } else {                // outer,  foreground/background
+                runOuterCmd(cmd);
             }
         } else {  //parent
-            if (backgoround) {
+            if (background) {       // inner/outer, background
                 addPid(pid, cmd, BACKGROUND);
-            } else {
+            } else {                // outer, foreground
+                // put the process in foreground by called foreGoundWait
                 int status = foreGroundWait(pid);
-                if(WIFSTOPPED(status)){
+
+                // check the exit state
+                // if it is just stop by Ctrl + Z, add the pid to plist
+                if (WIFSTOPPED(status)) {
                     addPid(pid, cmd, STOP);
                 }
             }
@@ -141,13 +150,15 @@ int execCommand(CommandPtr cmd) {
     return ret;
 }
 
+// free the memory of a command that was allocated in buildCmd
 void freeCommand(CommandPtr cmd) {
     for (size_t i = 0; i < cmd->argc; i++) {
         free(cmd->argv[i]);
     }
 }
 
-int getInputRedirect(const CommandPtr cmd) {
+// open the input redirect file and return its file descriptor
+int getInputRedirect(CommandPtr cmd) {
     int fd = 0;
     for (size_t i = 0; i < cmd->argc; i++) {
         if (strcmp("<", cmd->argv[i]) == 0) {
@@ -156,15 +167,15 @@ int getInputRedirect(const CommandPtr cmd) {
             fd = open(cmd->argv[i + 1], O_RDONLY);
             if (fd < 0)
                 return 0;
-            else
-                return fd;
+            return fd;
 
         }
     }
     return 0;
 }
 
-int getOutputRedirect(const CommandPtr cmd) {
+// open the output redirect file and return its file descriptor
+int getOutputRedirect(CommandPtr cmd) {
     int fd = 0;
     for (size_t i = 0; i < cmd->argc; i++) {
         if (strcmp(">", cmd->argv[i]) == 0) {
@@ -182,11 +193,11 @@ int getOutputRedirect(const CommandPtr cmd) {
     }
     if (fd < 0)
         return 0;
-    else
-        return fd;
+    return fd;
 }
 
-int isInputRedirect(const CommandPtr cmd) {
+// judge whether the command is input redirect
+int isInputRedirect(CommandPtr cmd) {
     for (size_t i = 0; i < cmd->argc; i++) {
         if (strcmp("<", cmd->argv[i]) == 0) {
             return 1;
@@ -195,7 +206,14 @@ int isInputRedirect(const CommandPtr cmd) {
     return 0;
 }
 
-int isOutputRedirect(const CommandPtr cmd) {
+/**
+ * judge whether the command is output redirect
+ *
+ * @return return 0 if it is not output redirect
+ *  return 1 if it is output redirect as '>'
+ *  return 2 if it is output redirect as '>>'
+ * */
+int isOutputRedirect(CommandPtr cmd) {
     for (size_t i = 0; i < cmd->argc; i++) {
         if (strcmp(">", cmd->argv[i]) == 0) {
             return 1;
@@ -206,6 +224,7 @@ int isOutputRedirect(const CommandPtr cmd) {
     return 0;
 }
 
+// call by function ridInputRedirect and ridOutputRedirect to drop argv of redirect
 int ridIO(CommandPtr cmd, char *str) {
     for (size_t i = 0; i < cmd->argc; i++) {
         if (strcmp(str, cmd->argv[i]) == 0) {
@@ -216,7 +235,6 @@ int ridIO(CommandPtr cmd, char *str) {
                 return 0;
             }
 
-            // = to set last NULL
             for (size_t j = i + 2; j <= cmd->argc; j++, i++) {
                 cmd->argv[i] = cmd->argv[j];
             }
@@ -227,15 +245,18 @@ int ridIO(CommandPtr cmd, char *str) {
     return 0;
 }
 
+// drop argv '<' and the argv after '<'
 int ridInputRedirect(CommandPtr cmd) {
     ridIO(cmd, "<");
 }
 
+// drop argv '>' / '>>' and the argv after '>' / '>>'
 int ridOutputRedirect(CommandPtr cmd) {
     ridIO(cmd, ">");
     ridIO(cmd, ">>");
 }
 
+// drop argv '&'
 void ridBackgroundChar(CommandPtr cmd) {
     for (size_t i = 0; i < cmd->argc; i++) {
         if (strcmp("&", cmd->argv[i]) == 0) {
@@ -249,7 +270,8 @@ void ridBackgroundChar(CommandPtr cmd) {
     }
 }
 
-bool isBackground(const CommandPtr cmd) {
+// judge whether the command contain '&'
+bool isBackground(CommandPtr cmd) {
     for (size_t i = 0; i < cmd->argc; i++) {
         if (strcmp("&", cmd->argv[i]) == 0)
             return true;
@@ -257,6 +279,7 @@ bool isBackground(const CommandPtr cmd) {
     return false;
 }
 
+// print the command to stdout
 void printCommand(CommandPtr cmd) {
     for (size_t i = 0; i < cmd->argc; i++) {
         fputs(cmd->argv[i], stdout);
