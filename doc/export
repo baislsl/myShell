@@ -1,0 +1,10 @@
+export: export [command] ...
+	为 shell 变量设定导出属性
+	
+	command应该为"NAME" 或者"NAME=VALUE"的模式
+	标记每个 NAME 名称为自动导出到后续命令执行的环境,并在
+   导出前将 VALUE 作为赋值。如果没有"=VALUE", 将NAME从环境变量中移除
+   
+   退出状态:
+   返回0, 除非command非法则返回-1
+   

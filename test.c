@@ -17,6 +17,7 @@ extern char** environ;
 
 int main(int argc, char* argv[])
 {
+    printf("2:%lu", strtoul("-1", NULL, 10));
     struct stat buf;
     printf("1: %d\n", stat("./pid.c"), &buf);
     printf("1: %d\n", stat("./pid."), &buf);

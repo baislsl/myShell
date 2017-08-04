@@ -7,6 +7,8 @@
 #ifndef MYSHELL_PARAM_H
 #define MYSHELL_PARAM_H
 
+int getArgc();
+
 void paramInit(int argc, char *argv[]);
 
 void setExitState(int state);
@@ -15,7 +17,7 @@ int getExitState();
 
 const char *param(size_t index);
 
-void shift(size_t i);
+int shift(size_t i);
 
 void printAllParam(char *dest);
 

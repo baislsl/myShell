@@ -47,6 +47,7 @@ int _cd(const char **argv, size_t argc) {
 int _time(const char **argv, size_t argc) {
     time_t tp = time(NULL);
     fprintf(stdout, "%s", ctime(&tp));
+    return 0;
 }
 
 int _clr(const char **argv, size_t argc) {
@@ -101,17 +102,26 @@ void translate(const char *argv, char *dest) {
                 strcpy(dest, param((size_t) (argv[1] - '0')));
             } else if (argv[1] == '@' || argv[1] == '*') {
                 printAllParam(dest);
+            }else if(argv[1] == '#'){
+                sprintf(dest, "%d", getArgc());
             } else {
-                strcpy(dest, getenv(argv + 1));
+                char *env = getenv(argv + 1);
+                if (env == NULL)
+                    dest[0] = 0;
+                else
+                    strcpy(dest, getenv(argv + 1));
             }
         } else {
-            strcpy(dest, getenv(argv + 1));
+            char *env = getenv(argv + 1);
+            if (env == NULL)
+                dest[0] = 0;
+            else
+                strcpy(dest, getenv(argv + 1));
         }
     } else {
         strcpy(dest, argv);
     }
 }
-
 
 int _echo(const char **argv, size_t argc) {
     char dest[MAX_LENGTH];
@@ -123,15 +133,36 @@ int _echo(const char **argv, size_t argc) {
             fputs(dest, stdout);
         fputs("\n", stdout);
     } while (argc > 1);
-
+    return 0;
 }
 
 int _help(const char **argv, size_t argc) {
-
+    char path[MAX_LENGTH];
+    char line[MAX_LENGTH];
+    int ret = 0;
+    do {
+        --argc;
+        ++argv;
+        sprintf(path, "./doc/%s", *argv);
+        FILE *fp = fopen(path, "r");
+        if (fp == NULL) {
+            sprintf(path, "没有关于%s指令的帮助\n", *argv);
+            err_sys(path);
+            ret = -1;
+            continue;
+        }
+        while (fgets(line, MAX_LENGTH, fp) != NULL) {
+            fputs(line, stdout);
+        }
+    } while (argc > 1);
+    return ret;
 }
 
 int _quit(const char **argv, size_t argc) {
-    exit(EXIT_SUCCESS);
+    if(argc > 1){
+        exit((int)strtoul(argv[1], NULL, 10));
+    }
+    exit(getExitState());
 }
 
 int _umask(const char **argv, size_t argc) {
@@ -144,11 +175,12 @@ int _umask(const char **argv, size_t argc) {
         mode_t mode = (mode_t) strtoul(argv[1], NULL, 8);
         umask(mode);
     }
-
+    return 0;
 }
 
 int _jobs(const char **argv, size_t argc) {
     showAllPid();
+    return 0;
 }
 
 typedef int bgFgFunc(size_t);
@@ -157,13 +189,15 @@ int bgAndFg(const char **argv, size_t argc, bgFgFunc func) {
     if (argc == 1) {
         ssize_t pidNumber = getLastPidNumber();
         if (pidNumber >= 0)
-            func((size_t) pidNumber);
+            return func((size_t) pidNumber);
+        return -1;
     } else {
         while (argc > 1) {
             --argc;
             ++argv;
             unsigned long pidNumber = strtoul(*argv, NULL, 10);
-            func(pidNumber);
+            if(func(pidNumber) < 0)
+                return -1;
         }
         return 0;
     }
@@ -254,7 +288,7 @@ int _shift(const char **argv, size_t argc) {
     if (argc > 1) {
         i = strtoul(argv[1], NULL, 10);
     }
-    shift(i);
+    return shift(i);
 }
 
 // -? FILE
@@ -412,6 +446,10 @@ int _test(const char **argv, size_t argc) {
     }
 }
 
+int __exit(const char **argv, size_t argc) {
+    return _quit(argv, argc);
+}
+
 static internalFuncTie internalFuncList[] = {
         {_cd,       "cd"},
         {_pwd,      "pwd"},
@@ -432,7 +470,8 @@ static internalFuncTie internalFuncList[] = {
         {_unset,    "unset"},
         {_continue, "continue"},
         {_shift,    "shift"},
-        {_test,     "test"}
+        {_test,     "test"},
+        {__exit,    "exit"}    // _exit 在unistd.h头文件中定义过, 这里避免重命采用__exit
 };
 
 bool isInternalCmd(char *name, size_t length) {

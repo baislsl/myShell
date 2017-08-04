@@ -60,10 +60,11 @@ int removePidList(size_t index) {
 int makeBackground(size_t pidNumber) {
     ssize_t i = findPidNodeWithPidNumber(pidNumber);
     if (i < 0)
-        return 1;
+        return -1;
     plist[i].condition = CONTINUE;
     printPidNode(&plist[i]);
     kill(plist[i].pid, SIGCONT);
+    return 0;
 }
 
 int makeForeground(size_t pidNumber) {

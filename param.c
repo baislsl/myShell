@@ -10,6 +10,10 @@ int lastExitState = 0;
 int argc;
 char **argv;
 
+int getArgc(){
+    return argc;
+}
+
 void paramInit(int _argc, char *_argv[]) {
     argc = _argc;
     argv = (char **) malloc(argc * sizeof(char *));
@@ -33,11 +37,17 @@ const char *param(size_t index) {
     return argv[index];
 }
 
-void shift(size_t i) {
+
+// return 1 if i > argc, else return 0
+int shift(size_t i) {
+    int ret = i > argc ? 1 : 0;
     while(i-- && argc--){
         free(argv[i]);
         ++argv;
     }
+    return ret;
+
+
 }
 void printAllParam(char *dest){
     dest[0] = 0;
