@@ -1,0 +1,38 @@
+test: test [命令]
+    判断命令的正确性
+    
+    判断出命令的正确性, 返回1为真, 0为假. 返回结果可通过$?访问
+    
+	文件操作
+		-b FILE 	文件存在且为块特殊文件返回1, 否则返回0
+		-c FILE 	文件存在且为字符特殊文件返回1, 否则返回0
+		-d FILE 	文件存在且为目录返回1, 否则返回0
+		-e FILE 	文件存在返回1, 否则返回0
+		-f FILE 	文件存在且为普通文件返回1, 否则返回0
+		-h FILE 	文件存在且为符号链接返回1, 否则返回0
+		-L FILE 	文件存在且为符号链接返回1, 否则返回0
+		-k FILE 	文件存在且设有粘着位返回1, 否则返回0
+		-p FILE 	文件存在且为管道或FIFO返回1, 否则返回0
+		-r FILE 	文件存在且当前用户可读返回1, 否则返回0
+		-s FILE 	文件存在且不为空文件返回1, 否则返回0
+		-S FILE 	文件存在且为套接字类型返回1, 否则返回0
+		-w FILE 	文件存在且当前用户可写返回1, 否则返回0
+		-x FILE 	文件存在且当前用户可执行返回1, 否则返回0   
+		FILE1 -nt FILE2  如果FILE1比FILES修改时间更早返回1, 否者返回0
+		FILE1 -ot FILE2  如果FILE1比FILES修改时间更迟返回1, 否者返回0
+    
+	字符串操作: 
+		-z STRING   如果string为空, 返回1, 否者返回0
+		-n STRING	如果string不为空, 返回1, 否者返回0
+		STRING1 = STRING2
+		STRING1 != STRING2
+		STRING1 <= STRING2
+		STRING1 >= STRING2
+    
+	关系操作	
+		EXPR1 -a EXPR2 返回 EXPR1 & EXPR2
+		EXPR1 -o EXPR2 返回 EXPR1 | EXPR2
+    
+	退出状态:
+		若为真返回1, 如果为假或者件不存在或者参数形式错误返回0
+

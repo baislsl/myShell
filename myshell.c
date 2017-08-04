@@ -15,7 +15,17 @@ void init(int argc, char *argv[]) {
 
     // set $PATH
     setpath("/bin:/usr/bin");
-    addPath(getPath());
+
+    // add environment:
+    //    shell=<pathname>/myshell
+    //    parent=<pathname>/myshell
+    char *path = getPath();
+    char *shell = (char*)malloc(MAX_LENGTH);
+    sprintf(shell, "shell=%s", path);
+    putenv(shell);
+    shell = (char*)malloc(MAX_LENGTH);
+    sprintf(shell, "parent=%s", path);
+    putenv(shell);
 
     // initialize parameter
     paramInit(argc, argv);

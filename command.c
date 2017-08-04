@@ -136,7 +136,7 @@ int execCommand(CommandPtr cmd) {
                 addPid(pid, cmd, BACKGROUND);
             } else {                // outer, foreground
                 // put the process in foreground by called foreGoundWait
-                int status = foreGroundWait(pid);
+                int status = foregroundWait(pid);
 
                 // check the exit state
                 // if it is just stop by Ctrl + Z, add the pid to plist
@@ -181,13 +181,19 @@ int getOutputRedirect(CommandPtr cmd) {
         if (strcmp(">", cmd->argv[i]) == 0) {
             if (i == cmd->argc - 1)  // no direct file given
                 return 0;
-            fd = open(cmd->argv[i + 1], O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+            if(access(cmd->argv[i+1], F_OK) == 0)   // the file exists
+                fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_TRUNC);
+            else                                    // create the file according umask
+                fd = open(cmd->argv[i+1], O_CREAT | O_WRONLY | O_TRUNC, 0666 ^ getUmask());
             break;
         }
         if (strcmp(">>", cmd->argv[i]) == 0) {
             if (i == cmd->argc - 1)  // no direct file given
                 return 0;
-            fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_APPEND);
+            if(access(cmd->argv[i+1], F_OK) == 0)   // the file exists
+                fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_APPEND);
+            else                                    // create the file according umask
+                fd = open(cmd->argv[i+1], O_CREAT | O_WRONLY | O_APPEND, 0666 ^ getUmask());
             break;
         }
     }

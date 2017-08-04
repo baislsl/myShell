@@ -90,6 +90,12 @@
 		<Unit filename="/home/baislsl/c_c++/myShell/command.h">
 			<Option target="myShell"/>
 		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/forePid.c">
+			<Option target="myShell"/>
+		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/forePid.h">
+			<Option target="myShell"/>
+		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/internal.c">
 			<Option target="myShell"/>
 		</Unit>
@@ -102,10 +108,22 @@
 		<Unit filename="/home/baislsl/c_c++/myShell/myshell.h">
 			<Option target="myShell"/>
 		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/param.c">
+			<Option target="myShell"/>
+		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/param.h">
+			<Option target="myShell"/>
+		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/parser.c">
 			<Option target="myShell"/>
 		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/parser.h">
+			<Option target="myShell"/>
+		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/pid.c">
+			<Option target="myShell"/>
+		</Unit>
+		<Unit filename="/home/baislsl/c_c++/myShell/pid.h">
 			<Option target="myShell"/>
 		</Unit>
 		<Unit filename="/home/baislsl/c_c++/myShell/utility.c">

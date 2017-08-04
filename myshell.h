@@ -5,9 +5,8 @@
 #ifndef MYSHELL_MYSHELL_H
 #define MYSHELL_MYSHELL_H
 
-#define MAX_LINE 80
-#define MAX_PATH 256
-#define MAX_LENGTH 4096
-#define MAX_PIPE 256
+#define MAX_LINE 80         // max length of command length
+#define MAX_LENGTH 4096     // max length of a single string
+#define MAX_PID 1024        // max number of process
 
 #endif //MYSHELL_MYSHELL_H

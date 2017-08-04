@@ -17,16 +17,17 @@ char *getPath();
 
 int setpath(char *newPath);
 
-int addPath(char *newPath);
-
 void err_sys(char *msg);
 
-bool isEmpty(char *str, size_t strLength);
+bool isEmpty(const char *str, size_t strLength);
 
 void runCommand(char *cmd);
 
 ssize_t readCommand(char *cmd);
 
 void printInfo();
+
+mode_t getUmask();
+
 
 #endif //MYSHELL_UTILITY_H

@@ -1,1 +1,1 @@
-/usr/bin/cc -g   CMakeFiles/myShell.dir/myshell.c.o CMakeFiles/myShell.dir/utility.c.o CMakeFiles/myShell.dir/command.c.o CMakeFiles/myShell.dir/internal.c.o CMakeFiles/myShell.dir/parser.c.o  -o myShell 
+/usr/bin/cc -g   CMakeFiles/myShell.dir/myshell.c.o CMakeFiles/myShell.dir/utility.c.o CMakeFiles/myShell.dir/command.c.o CMakeFiles/myShell.dir/internal.c.o CMakeFiles/myShell.dir/parser.c.o CMakeFiles/myShell.dir/pid.c.o CMakeFiles/myShell.dir/forePid.c.o CMakeFiles/myShell.dir/param.c.o  -o myShell 

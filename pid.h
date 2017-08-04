@@ -4,17 +4,23 @@
 
 #ifndef MYSHELL_PID_H
 #define MYSHELL_PID_H
+
 #include <fcntl.h>
 #include <stddef.h>
 #include "command.h"
 
-#define MAX_PID 256
-
-enum Condition{
+/**
+ * STOP : a process was stopped
+ * FINISH : a process has finished
+ * BACKGROUND : a process was running in background and never stop before
+ * CONTINUE : a process continue after stop
+ * */
+enum Condition {
     STOP, FINISH, BACKGROUND, CONTINUE
 };
 
-struct pidNode{
+// store the information of one process
+struct pidNode {
     pid_t pid;
     size_t number;
     CommandPtr cmd;
@@ -30,11 +36,7 @@ int makeForeground(size_t pidNumber);
 
 int addPid(pid_t pid, CommandPtr cmd, enum Condition condition);
 
-int getPidNumber(pid_t pid);
-
-int removePid(pid_t pid);
-
-int checkProcess();
+void checkProcess();
 
 ssize_t getLastPidNumber();
 

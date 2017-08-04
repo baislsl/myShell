@@ -23,7 +23,7 @@ pid_t forePid = -1;
  * @param pid the pid of the process will be put foreground
  * @return the status of wait for pid process
  * */
-int foreGroundWait(pid_t pid) {
+int foregroundWait(pid_t pid) {
     int status;
     forePid = pid;  // set forePid before wait
 

@@ -101,7 +101,7 @@ int makeForeground(size_t pidNumber) {
     // so the information of this process must has been stored in plist
     // if the process is stopped again, set the condition to STOP
     // and do not need tho add it to plist again
-    int status = foreGroundWait(plist[i].pid);
+    int status = foregroundWait(plist[i].pid);
     if (WIFSTOPPED(status)) {
         plist[i].condition = STOP;
     }
@@ -115,6 +115,7 @@ int addPid(pid_t pid, CommandPtr cmd, enum Condition condition) {
     commandCopy(plist[count].cmd, cmd);
     plist[count].condition = condition;
     plist[count].number = count + 1;
+    printPidNode(&plist[count]);
     ++count;        // update count
 }
 
@@ -138,12 +139,8 @@ void checkProcess() {
         if (r != 0) {
             plist[i].condition = FINISH;
             // check the condition of exit, normal or abnormal
-            if (WIFEXITED(status)) {            // normal exit
-                fputs("normal exit:", stdout);
-                printPidNode(&plist[i]);
-                removePidList(i);
-            } else if (WIFSIGNALED(status)) {   // abnormal exit
-                err_sys("abnormal exit");
+            if (WIFEXITED(status) | WIFSIGNALED(status)) {            // exit
+                fputs("Exit:", stdout);
                 printPidNode(&plist[i]);
                 removePidList(i);
             }

@@ -177,13 +177,88 @@ CMakeFiles/myShell.dir/parser.c.o.provides: CMakeFiles/myShell.dir/parser.c.o.re
 CMakeFiles/myShell.dir/parser.c.o.provides.build: CMakeFiles/myShell.dir/parser.c.o
 
 
+CMakeFiles/myShell.dir/pid.c.o: CMakeFiles/myShell.dir/flags.make
+CMakeFiles/myShell.dir/pid.c.o: ../pid.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/myShell.dir/pid.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/myShell.dir/pid.c.o   -c /home/baislsl/c_c++/myShell/pid.c
+
+CMakeFiles/myShell.dir/pid.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/myShell.dir/pid.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/baislsl/c_c++/myShell/pid.c > CMakeFiles/myShell.dir/pid.c.i
+
+CMakeFiles/myShell.dir/pid.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/myShell.dir/pid.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/baislsl/c_c++/myShell/pid.c -o CMakeFiles/myShell.dir/pid.c.s
+
+CMakeFiles/myShell.dir/pid.c.o.requires:
+
+.PHONY : CMakeFiles/myShell.dir/pid.c.o.requires
+
+CMakeFiles/myShell.dir/pid.c.o.provides: CMakeFiles/myShell.dir/pid.c.o.requires
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/pid.c.o.provides.build
+.PHONY : CMakeFiles/myShell.dir/pid.c.o.provides
+
+CMakeFiles/myShell.dir/pid.c.o.provides.build: CMakeFiles/myShell.dir/pid.c.o
+
+
+CMakeFiles/myShell.dir/forePid.c.o: CMakeFiles/myShell.dir/flags.make
+CMakeFiles/myShell.dir/forePid.c.o: ../forePid.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/myShell.dir/forePid.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/myShell.dir/forePid.c.o   -c /home/baislsl/c_c++/myShell/forePid.c
+
+CMakeFiles/myShell.dir/forePid.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/myShell.dir/forePid.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/baislsl/c_c++/myShell/forePid.c > CMakeFiles/myShell.dir/forePid.c.i
+
+CMakeFiles/myShell.dir/forePid.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/myShell.dir/forePid.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/baislsl/c_c++/myShell/forePid.c -o CMakeFiles/myShell.dir/forePid.c.s
+
+CMakeFiles/myShell.dir/forePid.c.o.requires:
+
+.PHONY : CMakeFiles/myShell.dir/forePid.c.o.requires
+
+CMakeFiles/myShell.dir/forePid.c.o.provides: CMakeFiles/myShell.dir/forePid.c.o.requires
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/forePid.c.o.provides.build
+.PHONY : CMakeFiles/myShell.dir/forePid.c.o.provides
+
+CMakeFiles/myShell.dir/forePid.c.o.provides.build: CMakeFiles/myShell.dir/forePid.c.o
+
+
+CMakeFiles/myShell.dir/param.c.o: CMakeFiles/myShell.dir/flags.make
+CMakeFiles/myShell.dir/param.c.o: ../param.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/myShell.dir/param.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/myShell.dir/param.c.o   -c /home/baislsl/c_c++/myShell/param.c
+
+CMakeFiles/myShell.dir/param.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/myShell.dir/param.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/baislsl/c_c++/myShell/param.c > CMakeFiles/myShell.dir/param.c.i
+
+CMakeFiles/myShell.dir/param.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/myShell.dir/param.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/baislsl/c_c++/myShell/param.c -o CMakeFiles/myShell.dir/param.c.s
+
+CMakeFiles/myShell.dir/param.c.o.requires:
+
+.PHONY : CMakeFiles/myShell.dir/param.c.o.requires
+
+CMakeFiles/myShell.dir/param.c.o.provides: CMakeFiles/myShell.dir/param.c.o.requires
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/param.c.o.provides.build
+.PHONY : CMakeFiles/myShell.dir/param.c.o.provides
+
+CMakeFiles/myShell.dir/param.c.o.provides.build: CMakeFiles/myShell.dir/param.c.o
+
+
 # Object files for target myShell
 myShell_OBJECTS = \
 "CMakeFiles/myShell.dir/myshell.c.o" \
 "CMakeFiles/myShell.dir/utility.c.o" \
 "CMakeFiles/myShell.dir/command.c.o" \
 "CMakeFiles/myShell.dir/internal.c.o" \
-"CMakeFiles/myShell.dir/parser.c.o"
+"CMakeFiles/myShell.dir/parser.c.o" \
+"CMakeFiles/myShell.dir/pid.c.o" \
+"CMakeFiles/myShell.dir/forePid.c.o" \
+"CMakeFiles/myShell.dir/param.c.o"
 
 # External object files for target myShell
 myShell_EXTERNAL_OBJECTS =
@@ -193,9 +268,12 @@ myShell: CMakeFiles/myShell.dir/utility.c.o
 myShell: CMakeFiles/myShell.dir/command.c.o
 myShell: CMakeFiles/myShell.dir/internal.c.o
 myShell: CMakeFiles/myShell.dir/parser.c.o
+myShell: CMakeFiles/myShell.dir/pid.c.o
+myShell: CMakeFiles/myShell.dir/forePid.c.o
+myShell: CMakeFiles/myShell.dir/param.c.o
 myShell: CMakeFiles/myShell.dir/build.make
 myShell: CMakeFiles/myShell.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking C executable myShell"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/baislsl/c_c++/myShell/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking C executable myShell"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/myShell.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -208,6 +286,9 @@ CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/utility.c.o.requires
 CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/command.c.o.requires
 CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/internal.c.o.requires
 CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/parser.c.o.requires
+CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/pid.c.o.requires
+CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/forePid.c.o.requires
+CMakeFiles/myShell.dir/requires: CMakeFiles/myShell.dir/param.c.o.requires
 
 .PHONY : CMakeFiles/myShell.dir/requires
 

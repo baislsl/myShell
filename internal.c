@@ -40,7 +40,9 @@ int _time(const char **argv, size_t argc) {
 }
 
 int _clr(const char **argv, size_t argc) {
-    static char output[] = "\033[1A\033[2J\033[H";
+    // "\003[2J" clear the screen
+    // "\003[H" move the cursor to the upper-left corner of the screen
+    static char output[] = "\033[2J\033[H";
     if (write(STDOUT_FILENO, output, strlen(output)) == -1)
         return -1;
     else
@@ -119,7 +121,7 @@ int _echo(const char **argv, size_t argc) {
     do {
         --argc;
         ++argv;
-        translate(*argv, dest);
+        translate(*argv, dest); // handle '$' transfer
         if (dest != NULL && dest[0])
             fputs(dest, stdout);
         fputs("\n", stdout);
@@ -158,9 +160,7 @@ int _quit(const char **argv, size_t argc) {
 
 int _umask(const char **argv, size_t argc) {
     if (argc == 1) {
-        mode_t mode = umask(0);
-        fprintf(stdout, "%03o\n", mode);
-        umask(mode);
+        fprintf(stdout, "%03o\n", getUmask());
     } else {
         // cast the second arg to octal integer
         mode_t mode = (mode_t) strtoul(argv[1], NULL, 8);
@@ -216,7 +216,7 @@ int _exec(const char **argv, size_t argc) {
         --argc;
         strcat(cmd, *argv);
         strcat(cmd, " ");
-    } while ((argc > 1));
+    } while (argc > 1);
     runCommand(cmd);
     exit(0);
 }
@@ -224,7 +224,7 @@ int _exec(const char **argv, size_t argc) {
 /**
  * Variable environ is declared in unistd.h
  * It points to an array of pointers to strings of environment parameters,
- * and the last pointer in environ is NULL.
+ * and the last pointer of environ is NULL.
  * */
 extern char **environ;
 
@@ -242,7 +242,7 @@ int _unset(const char **argv, size_t argc) {
         --argc;
         if (unsetenv(*argv) == -1)
             ret = -1;
-    } while ((argc > 1));
+    } while (argc > 1);
     return ret;
 }
 
@@ -251,6 +251,7 @@ int _export(const char **argv, size_t argc) {
     do {
         ++argv;
         --argc;
+
         // must malloc environment in stack and do not free it
         // putenv only add environment to global array environ
         char *environment = (char *) malloc(strlen(*argv) * sizeof(char));
@@ -268,7 +269,7 @@ int _environ(const char **argv, size_t argc) {
 }
 
 int _continue(const char **argv, size_t argc) {
-    return 0;
+    return 1;
 }
 
 int _shift(const char **argv, size_t argc) {
@@ -279,77 +280,105 @@ int _shift(const char **argv, size_t argc) {
     return shift(i);
 }
 
-// -? FILE
+/**
+ * called by function _test to handle 2 argument in test
+ * judge following forms:
+ *      -z STRING      True if string is empty.
+ *      -n STRING      True if string is not empty.
+ *      -b FILE        True if file is block special.
+ *      -c FILE        True if file is character special.
+ *      -d FILE        True if file is a directory.
+ *      -e FILE        True if file exists.
+ *      -f FILE        True if file exists and is a regular file.
+ *      -h FILE        True if file is a symbolic link.
+ *      -L FILE        True if file is a symbolic link.
+ *      -k FILE        True if file has its `sticky' bit set.
+ *      -p FILE        True if file is a named pipe.
+ *      -r FILE        True if file is readable by you.
+ *      -s FILE        True if file exists and is not empty.
+ *      -S FILE        True if file is a socket.
+ *      -w FILE        True if the file is writable by you.
+ *      -x FILE        True if the file is executable by you.
+ * @return 1 for true, 0 for false, -1 for input format error
+ * */
 int test2(const char *argv1, const char *argv2) {
     char a1[MAX_LENGTH], a2[MAX_LENGTH];
     translate(argv1, a1);
     translate(argv2, a2);
     if (a1[0] != '-' || strlen(a1) != 2)
         return -1;
-    char *all = "abcdefghLkprsStuwxOGNzn";
     char cc = a1[1];
-    size_t i;
-    for (i = 0; i < strlen(all); i++) {
-        if (all[i] == cc) break;
-    }
-    if (i == strlen(all))
-        return -1;
-
-    if (cc == 'z') {
+    if (cc == 'z')  // True if string is empty.
         return strlen(a1) == 0;
-    } else if (cc == 'n') {
+    if (cc == 'n')  // True if string is not empty.
         return strlen(a1) != 0;
-    } else {
-        struct stat buf;
-        if (stat(a2, &buf) == -1) {
-            if (cc == 'a' || cc == 'e')
-                return 1;
-            return 0;
-        }
-        switch (cc) {
-            case 'a':
-            case 'e':
-                return 0;
-            case 'b':
-                return S_ISBLK(buf.st_mode);
-            case 'c':
-                return S_ISCHR(buf.st_mode);
-            case 'd':
-                return S_ISDIR(buf.st_mode);
-            case 'f':
-                return S_ISREG(buf.st_mode);
-            case 'h':
-            case 'L':
-                return S_ISLNK(buf.st_mode);
-            case 's':
-                return S_ISSOCK(buf.st_mode);
-            default:
-                return -1;
-        }
+
+    struct stat buf;
+    if (stat(a2, &buf) == -1) { // file do not exist
+        return 0;
     }
-
-
+    switch (cc) {
+        case 'b':   // True if file is block special.
+            return S_ISBLK(buf.st_mode);
+        case 'c':   // True if file is character special.
+            return S_ISCHR(buf.st_mode);
+        case 'd':   // True if file is a directory.
+            return S_ISDIR(buf.st_mode);
+        case 'e':   // True if file exists.
+            return 1;
+        case 'f':   // True if file exists and is a regular file.
+            return S_ISREG(buf.st_mode);
+        case 'h':   // True if file is a symbolic link.
+        case 'L':
+            return S_ISLNK(buf.st_mode);
+        case 'k':   // True if file has its `sticky' bit set.
+            return buf.st_mode & S_ISVTX;
+        case 'p':   // True if file is a named pipe.
+            return S_ISFIFO(buf.st_mode);
+        case 'r':   // True if file is readable by user
+            return buf.st_mode & S_IRUSR;
+        case 's':   // True if file is readable by you.
+            return buf.st_size > 0;
+        case 'S':   // True if file is a socket.
+            return S_ISSOCK(buf.st_mode);
+        case 'w':   // True if FD is opened on a terminal.
+            return buf.st_mode & S_IWUSR;
+        case 'x':   // True if FD is opened on a terminal.
+            return buf.st_mode & S_IXUSR;
+        default:
+            return -1;
+    }
 }
 
+/**
+ * called by function _test to handle 3 argument in test
+ * judge following forms:
+ *      FILE1 -nt FILE2     True if file1 is newer than file2 (according to modification date).
+ *      FILE1 -ot FILE2     True if file1 is older than file2.
+ *      STRING1 = STRING2   True if the strings are equal.
+ *      STRING1 != STRING2  True if the strings are not equal.
+ *      STRING1 <= STRING2  True if STRING1 sorts before or equal STRING2 lexicographically
+ *      STRING1 >= STRING2   True if STRING1 sorts after or equal STRING2 lexicographically.
+ * for consideration of simplicity, the program do not support "<" and ">" comparison,
+ * because it will be mistaken as IO redirect
+ *
+ * @return 1 for true, 0 for false, -1 for input format error
+ * */
 int test3(const char *argv1, const char *argv2, const char *argv3) {
     char a1[MAX_LENGTH], a2[MAX_LENGTH], a3[MAX_LENGTH];
     translate(argv1, a1);
-    translate(argv2, a2);
+    strcpy(a2, argv2);
     translate(argv3, a3);
     int cmp = strcmp(a1, a3);
     if (strcmp(a2, "=") == 0) {
         return cmp == 0;
     } else if (strcmp(a2, "!=") == 0) {
         return cmp != 0;
-    } else if (strcmp(a2, "<") == 0) {
-        return cmp < 0;
-    } else if (strcmp(a2, ">") == 0) {
-        return cmp > 0;
     } else if (strcmp(a2, "<=") == 0) {
         return cmp <= 0;
     } else if (strcmp(a2, ">=") == 0) {
         return cmp >= 0;
-    } else if (strcmp(a2, "-nt") == 0) {
+    } else if (strcmp(a2, "-nt") == 0) {    // True if a1 is newer than a3
         struct stat buf1, buf2;
         if (stat(a1, &buf1) == -1)
             return -1;
@@ -358,7 +387,7 @@ int test3(const char *argv1, const char *argv2, const char *argv3) {
         }
         return (buf1.st_mtim.tv_sec > buf2.st_mtim.tv_sec)
                || ((buf1.st_mtim.tv_sec == buf2.st_mtim.tv_sec) && (buf1.st_mtim.tv_nsec > buf2.st_mtim.tv_nsec));
-    } else if (strcmp(a2, "-ot") == 0) {
+    } else if (strcmp(a2, "-ot") == 0) {    // True if a1 is older than a3
         struct stat buf1, buf2;
         if (stat(a1, &buf1) == -1)
             return -1;
@@ -367,69 +396,51 @@ int test3(const char *argv1, const char *argv2, const char *argv3) {
         }
         return (buf1.st_mtim.tv_sec < buf2.st_mtim.tv_sec)
                || ((buf1.st_mtim.tv_sec == buf2.st_mtim.tv_sec) && (buf1.st_mtim.tv_nsec < buf2.st_mtim.tv_nsec));
-    } else if (strcmp(a2, "ef")) {
-
-        return 0;
     } else {
         return -1;
     }
 }
 
-// help test
-// -a -o
-// FILE
-// STRING
-
-enum {
-    NONE, AND, OR
-};
-
 int _test(const char **argv, size_t argc) {
+    enum {
+        NONE, AND, OR
+    };
     static char *and = "-a";
     static char *or = "-o";
-    int ret = 0, relation = NONE, tmp;
-    size_t cur = 0;
+    int result = 0, relation = NONE;
+    size_t cur = 1;
     while (1) {
         size_t begin = cur, end = cur;
+
+        // search for "-a" and "-o"
         while (end < argc && strcmp(and, argv[end]) != 0 && strcmp(or, argv[end]) != 0) {
             ++end;
         }
-        if (begin - end == 2) {   // 2 parameter
-            tmp = test2(argv[begin], argv[begin + 1]);
-        } else if (begin - end == 3) {
-            tmp = test3(argv[begin], argv[begin + 1], argv[begin + 2]);
+
+        // get the result of each sentence split by "-a" / "-o"
+        int ret;
+        if (end - begin == 2) {         // 2 parameter
+            ret = test2(argv[begin], argv[begin + 1]);
+        } else if (end - begin == 3) {  // 3 parameter
+            ret = test3(argv[begin], argv[begin + 1], argv[begin + 2]);
         } else {
             return 0;
         }
-        if (tmp == -1)   //error
+        if (ret == -1)   // format error
             return 0;
-        if (relation == NONE) {
-            ret = tmp;
-            if (end == argc)
-                return ret;
-            if (strcmp(and, argv[end]) == 0) {
-                relation = AND;
-            } else {
-                relation = OR;
-            }
-        } else {
-            if (end == argc) {
-                if (relation == AND) {
-                    return ret & tmp;
-                } else {
-                    return ret | tmp;
-                }
-            }
-            if (strcmp(and, argv[end]) == 0) {
-                ret &= tmp;
-                if (relation != AND)
-                    return 0;
-            } else {
-                ret |= tmp;
-                if (relation != OR)
-                    return 0;
-            }
+
+        if (relation == AND) {
+            result &= ret;
+        } else if (relation == OR) {
+            result |= ret;
+        } else {    // relation = NONE, the first sentence
+            result = ret;
         }
+        if (end == argc) return result;
+
+        // update relation
+        relation = (strcmp(and, argv[end]) == 0) ? AND : OR;
+
         cur = end + 1;
     }
 }

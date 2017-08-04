@@ -7,8 +7,12 @@
 
 #include <fcntl.h>
 
-int foreGroundWait(pid_t pid);
+int foregroundWait(pid_t pid);
 
-int getForePid();
+void sig_tstp(int signal);
+
+void sig_quit(int signal);
+
+void sig_int(int signal);
 
 #endif //MYSHELL_FOREPID_H

@@ -1,6 +1,6 @@
 continue: continue
-    返回0
+    返回1
 
     退出状态:
-    返回0
+    返回1
     

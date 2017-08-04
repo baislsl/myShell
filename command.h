@@ -11,6 +11,14 @@
 typedef struct _Command Command;
 typedef struct _Command *CommandPtr;
 
+/**
+ * a structure to store the information of a single command
+ *
+ * @param inFd input file descriptor of the command
+ * @param outFd output file descriptor of the command
+ * @param oldInFd input file descriptor that was previously set before the command execution
+ * @param oldOutFd output file descriptor that was previously set before the command execution
+ * */
 struct _Command {
     size_t argc;
     char *argv[256];
@@ -20,7 +28,7 @@ struct _Command {
     int oldOutFd;
 };
 
-int commandCopy(CommandPtr src, CommandPtr dest);
+void commandCopy(CommandPtr src, CommandPtr dest);
 
 int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength);
 
@@ -28,9 +36,9 @@ int execCommand(CommandPtr cmd);
 
 void freeCommand(CommandPtr cmd);
 
-int setInDirect(CommandPtr cmd, bool flag, int inFd, int inWritePipe);
+void setInDirect(CommandPtr cmd, int inFd);
 
-int setOutDirect(CommandPtr cmd, bool flag, int outFd, int outReadPipe);
+void setOutDirect(CommandPtr cmd, int outFd);
 
 
 int isInputRedirect(CommandPtr cmd);

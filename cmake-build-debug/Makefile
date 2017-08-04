@@ -150,6 +150,33 @@ command.c.s:
 	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/command.c.s
 .PHONY : command.c.s
 
+forePid.o: forePid.c.o
+
+.PHONY : forePid.o
+
+# target to build an object file
+forePid.c.o:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/forePid.c.o
+.PHONY : forePid.c.o
+
+forePid.i: forePid.c.i
+
+.PHONY : forePid.i
+
+# target to preprocess a source file
+forePid.c.i:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/forePid.c.i
+.PHONY : forePid.c.i
+
+forePid.s: forePid.c.s
+
+.PHONY : forePid.s
+
+# target to generate assembly for a file
+forePid.c.s:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/forePid.c.s
+.PHONY : forePid.c.s
+
 internal.o: internal.c.o
 
 .PHONY : internal.o
@@ -204,6 +231,33 @@ myshell.c.s:
 	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/myshell.c.s
 .PHONY : myshell.c.s
 
+param.o: param.c.o
+
+.PHONY : param.o
+
+# target to build an object file
+param.c.o:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/param.c.o
+.PHONY : param.c.o
+
+param.i: param.c.i
+
+.PHONY : param.i
+
+# target to preprocess a source file
+param.c.i:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/param.c.i
+.PHONY : param.c.i
+
+param.s: param.c.s
+
+.PHONY : param.s
+
+# target to generate assembly for a file
+param.c.s:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/param.c.s
+.PHONY : param.c.s
+
 parser.o: parser.c.o
 
 .PHONY : parser.o
@@ -230,6 +284,33 @@ parser.s: parser.c.s
 parser.c.s:
 	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/parser.c.s
 .PHONY : parser.c.s
+
+pid.o: pid.c.o
+
+.PHONY : pid.o
+
+# target to build an object file
+pid.c.o:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/pid.c.o
+.PHONY : pid.c.o
+
+pid.i: pid.c.i
+
+.PHONY : pid.i
+
+# target to preprocess a source file
+pid.c.i:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/pid.c.i
+.PHONY : pid.c.i
+
+pid.s: pid.c.s
+
+.PHONY : pid.s
+
+# target to generate assembly for a file
+pid.c.s:
+	$(MAKE) -f CMakeFiles/myShell.dir/build.make CMakeFiles/myShell.dir/pid.c.s
+.PHONY : pid.c.s
 
 utility.o: utility.c.o
 
@@ -270,15 +351,24 @@ help:
 	@echo "... command.o"
 	@echo "... command.i"
 	@echo "... command.s"
+	@echo "... forePid.o"
+	@echo "... forePid.i"
+	@echo "... forePid.s"
 	@echo "... internal.o"
 	@echo "... internal.i"
 	@echo "... internal.s"
 	@echo "... myshell.o"
 	@echo "... myshell.i"
 	@echo "... myshell.s"
+	@echo "... param.o"
+	@echo "... param.i"
+	@echo "... param.s"
 	@echo "... parser.o"
 	@echo "... parser.i"
 	@echo "... parser.s"
+	@echo "... pid.o"
+	@echo "... pid.i"
+	@echo "... pid.s"
 	@echo "... utility.o"
 	@echo "... utility.i"
 	@echo "... utility.s"

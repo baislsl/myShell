@@ -3,6 +3,7 @@
 //
 
 #include <fcntl.h>
+#include <sys/stat.h>
 #include "utility.h"
 #include "command.h"
 #include "param.h"
@@ -21,22 +22,9 @@ int setpath(char *newPath) {
     setenv("PATH", newPath, 1);
 }
 
-// add environment variable $PATH
-int addPath(char *newPath) {
-    char *env = getenv("PATH");
-    char path[MAX_LENGTH];
-    strcpy(path, env);
-    size_t len = strlen(path);
-    path[len] = ':';
-    path[len + 1] = 0;
-    strcat(path, newPath);
-    setenv("PATH", path, 1);
-    return 0;
-}
-
 // puts msg to stderr in red color
 void err_sys(char *msg) {
-    fprintf(stderr, "\033[31;1m%s\033[0ms", msg);
+    fprintf(stderr, "\033[31;1m%s\033[0m", msg);
 }
 
 /**
@@ -147,4 +135,11 @@ ssize_t readCommand(char *cmd) {
 void printInfo() {
     printf("\033[32;1mmyshell\033[37m:\033[34m%s> \033[0m", getPath());
     fflush(stdout);
+}
+
+// return the umask
+mode_t getUmask(){
+    mode_t mode = umask(0);
+    umask(mode);
+    return mode;
 }
