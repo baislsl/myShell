@@ -34,7 +34,7 @@ ssize_t findPidNodeWithPid(pid_t pid) {
 
 /**
  * print the information of a pidNode to stdout
- * in format: " [number] pid   cmd "
+ * in format: " [number] pid  condition  cmd "
  * */
 void printPidNode(pNode *p) {
     fprintf(stdout, "[%lu] %d   ", p->number, p->pid);
@@ -121,7 +121,7 @@ int addPid(pid_t pid, CommandPtr cmd, enum Condition condition) {
 
 /**
  * when each command was inputted in the shell,
- * this function will be called to check all the condition of the unfinished process in plist
+ * this function will be called to check the condition of all unfinished process in plist
  * this function is essential to avoid defunct process.
  * Once a process condition change to FINISH, print out the information of this process to stdout,
  * this function is called before each command to avoid redirect of the command,

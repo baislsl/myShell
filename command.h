@@ -32,7 +32,7 @@ void commandCopy(CommandPtr src, CommandPtr dest);
 
 int buildCmd(CommandPtr ptr, char *cmd, size_t cmdLength);
 
-int execCommand(CommandPtr cmd);
+void execCommand(CommandPtr cmd);
 
 void freeCommand(CommandPtr cmd);
 

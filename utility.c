@@ -93,8 +93,10 @@ void runCommand(char *cmd) {
         // after setting the pipe direct, set the redirect declared in each command if exist
         if (isInputRedirect(&command[i])) {
             int fd = getInputRedirect(&command[i]);
-            setInDirect(&command[i], fd);
-            ridInputRedirect(&command[i]);
+            if(fd != 0){
+                setInDirect(&command[i], fd);
+                ridInputRedirect(&command[i]);
+            }
         }
         if (isOutputRedirect(&command[i])) {
             int fd = getOutputRedirect(&command[i]);
@@ -102,8 +104,7 @@ void runCommand(char *cmd) {
             ridOutputRedirect(&command[i]);
         }
 
-        int ret = execCommand(&command[i]); // execute, get the return state
-        setExitState(ret);                  // update return state
+        execCommand(&command[i]);
         close(fdw);
         close(fdr);
     }

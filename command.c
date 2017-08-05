@@ -13,6 +13,7 @@
 #include "forePid.h"
 #include "myshell.h"
 #include "utility.h"
+#include "param.h"
 
 // copy a command
 void commandCopy(CommandPtr dest, CommandPtr src) {
@@ -102,10 +103,20 @@ int runInternalCmd(CommandPtr cmd) {
 }
 
 int runOuterCmd(CommandPtr cmd) {
-    execvp(cmd->argv[0], cmd->argv);
+    return execvp(cmd->argv[0], cmd->argv);
 }
 
-int execCommand(CommandPtr cmd) {
+/**
+ * run a single command that do not contain pipe
+ *
+ * This function handle whether the command is background and whether the command is internal
+ *     1. background, internal -> fork a child, add to plist
+ *     2. foreground, internal -> the main process directly execute command
+ *     3. background, outer    -> fork a child, add to plist
+ *     4. foreground, outer    -> fork a child, parent call waitpid(),
+ *                                if WIFSTOPPED(status) is true, add to plist
+ * */
+void execCommand(CommandPtr cmd) {
     int ret = 0;
     char *cmdName = commandName(cmd);
     bool internal = isInternalCmd(cmdName, strlen(cmdName));
@@ -115,21 +126,31 @@ int execCommand(CommandPtr cmd) {
     // check the condition of each running process
     checkProcess();
 
-    if (background) {   // rib '&' in command
+    if (background) {   // rid '&' in command
         ridBackgroundChar(cmd);
     }
     setDirect(cmd);
     if (internal & !background) {   // inner, foreground
         ret = runInternalCmd(cmd);
+        setExitState(ret);
     } else {
         pid_t pid;
         if ((pid = fork()) < 0) {
-            err_sys("error to create a new process");
+            err_sys("error when create a new process");
         } else if (pid == 0) {  // child
             if (internal) {         // inner, background
                 runInternalCmd(cmd);
-            } else {                // outer,  foreground/background
-                runOuterCmd(cmd);
+            } else {
+                if (background) {   // outer,  background
+                    runOuterCmd(cmd);
+                } else {            // outer,  foreground
+                    ret = runOuterCmd(cmd);
+                    if(ret < 0){    // execvp fail -> no such outer command
+                        fprintf(stdout, "Can not find command: %s\n", commandName(cmd));
+                    }
+                    setExitState(ret);
+                }
+                exit(ret);
             }
         } else {  //parent
             if (background) {       // inner/outer, background
@@ -137,9 +158,9 @@ int execCommand(CommandPtr cmd) {
             } else {                // outer, foreground
                 // put the process in foreground by called foreGoundWait
                 int status = foregroundWait(pid);
-
-                // check the exit state
-                // if it is just stop by Ctrl + Z, add the pid to plist
+                
+                // if it is just stop by Ctrl + Z, WIFSTOPPED will return ture
+                // then add the pid to plist
                 if (WIFSTOPPED(status)) {
                     addPid(pid, cmd, STOP);
                 }
@@ -147,7 +168,6 @@ int execCommand(CommandPtr cmd) {
         }
     }
     resetDirect(cmd);
-    return ret;
 }
 
 // free the memory of a command that was allocated in buildCmd
@@ -164,36 +184,46 @@ int getInputRedirect(CommandPtr cmd) {
         if (strcmp("<", cmd->argv[i]) == 0) {
             if (i == cmd->argc - 1)  // no direct file given
                 return 0;
+            if (access(cmd->argv[i + 1], F_OK) != 0) {  // file do not exist
+                return 0;
+            }
             fd = open(cmd->argv[i + 1], O_RDONLY);
             if (fd < 0)
                 return 0;
             return fd;
-
         }
     }
     return 0;
 }
 
-// open the output redirect file and return its file descriptor
+/**
+ * open the output redirect file and return its file descriptor.
+ *
+ * if output redirect is '>', rewrite the file, use parameter O_TRUNC when open the file
+ * if output redirect is '>>', append the file, use parameter O_APPEND when open the file
+ * if the output file do not exists, create the file according umask: 0666^umask
+ *
+ * @return file descriptor of the output redirected file
+ * */
 int getOutputRedirect(CommandPtr cmd) {
     int fd = 0;
     for (size_t i = 0; i < cmd->argc; i++) {
         if (strcmp(">", cmd->argv[i]) == 0) {
             if (i == cmd->argc - 1)  // no direct file given
                 return 0;
-            if(access(cmd->argv[i+1], F_OK) == 0)   // the file exists
+            if (access(cmd->argv[i + 1], F_OK) == 0)   // the file exists
                 fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_TRUNC);
             else                                    // create the file according umask
-                fd = open(cmd->argv[i+1], O_CREAT | O_WRONLY | O_TRUNC, 0666 ^ getUmask());
+                fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_TRUNC, 0666 ^ getUmask());
             break;
         }
         if (strcmp(">>", cmd->argv[i]) == 0) {
             if (i == cmd->argc - 1)  // no direct file given
                 return 0;
-            if(access(cmd->argv[i+1], F_OK) == 0)   // the file exists
+            if (access(cmd->argv[i + 1], F_OK) == 0)   // the file exists
                 fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_APPEND);
             else                                    // create the file according umask
-                fd = open(cmd->argv[i+1], O_CREAT | O_WRONLY | O_APPEND, 0666 ^ getUmask());
+                fd = open(cmd->argv[i + 1], O_CREAT | O_WRONLY | O_APPEND, 0666 ^ getUmask());
             break;
         }
     }
